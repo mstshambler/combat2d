@@ -1,8 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-
 #include "level.h"
 
 LevelTile::LevelTile() {
@@ -26,11 +21,6 @@ void LevelTile::SetFloor(const byte &b) {
 byte LevelTile::GetFloor() const {
 	return floor;
 }
-
-
-
-
-
 
 Level::Level(const ushort &x, const ushort &y) {
 	size[0] = x;
@@ -74,11 +64,6 @@ bool Level::IsPassable(const ushort &x, const ushort &y) const {
 	else
 		return false;
 }
-
-
-
-
-
 
 Pathfinder::Pathfinder(Level *l) {
 	level = l;
@@ -247,10 +232,10 @@ uint Pathfinder::PrepareNodes(const ushort &startX, const ushort &startY, const 
 	}
 }
 
-List<uint> *Pathfinder::GetPath(const ushort &startX, const ushort &startY, const ushort &endX, const ushort &endY, const ushort &size, const int &limitDistance) {
+std::list<uint *> *Pathfinder::GetPath(const ushort &startX, const ushort &startY, const ushort &endX, const ushort &endY, const ushort &size, const int &limitDistance) {
 	uint closestCell;
 
-	List<uint> *foundPath;
+	std::list<uint *> *foundPath;
 
 	// Step 1: fill distances
 	closestCell = PrepareNodes(startX, startY, endX, endY, size);
@@ -266,7 +251,7 @@ List<uint> *Pathfinder::GetPath(const ushort &startX, const ushort &startY, cons
 	}
 
 	// Step 2: get the path
-	foundPath = new List<uint>();
+	foundPath = new std::list<uint *>();
 
 	{
 		ushort x, y;
@@ -277,7 +262,7 @@ List<uint> *Pathfinder::GetPath(const ushort &startX, const ushort &startY, cons
 		MakeCoords(closestCell, &x, &y);
 
 		pathTile = new uint(PackCoords(x, y));
-		foundPath->AddElement(pathTile);
+		foundPath->push_back(pathTile);
 
 		shift = x + y * level->GetSizeX();
 		curDistance = *(cellsDistance + shift);
@@ -298,7 +283,7 @@ List<uint> *Pathfinder::GetPath(const ushort &startX, const ushort &startY, cons
 
 					newDistance = *(cellsDistance + x + tx + (y + ty) * level->GetSizeX());
 
-					if (newDistance > -0.1f && newDistance < lowestDistance && newDistance + Math::sqrt2Limit > curDistance) {
+					if (newDistance > -0.1f && newDistance < lowestDistance && (tx == 0 || ty == 0 || CheckSize(x + tx, y, size) && CheckSize(x, y + ty, size)) ) {// && newDistance + Math::sqrt2Limit > curDistance) {
 						lowestDistance = newDistance;
 						lowestDistanceCell = PackCoords(x + tx, y + ty);
 					}
@@ -317,7 +302,7 @@ List<uint> *Pathfinder::GetPath(const ushort &startX, const ushort &startY, cons
 				printf("%i %i\n", x, y);
 
 				pathTile = new uint(lowestDistanceCell);
-				foundPath->AddFirstElement(pathTile);
+				foundPath->push_front(pathTile);
 				curDistance = lowestDistance;
 				if (x == startX && y == startY)
 					break;
@@ -325,25 +310,33 @@ List<uint> *Pathfinder::GetPath(const ushort &startX, const ushort &startY, cons
 				break;
 		}
 		if (x != startX || y != startY) {
-			foundPath->ClearAndDelete();
+			std::list<uint *>::iterator it;
+
+			for (it = foundPath->begin(); it != foundPath->end(); it++) {
+				delete *it;
+			}
+
+			foundPath->clear();
 		}
 	}
 	printf("---\n");
 	
 	// Step 3: optimize the path
-	if (foundPath->GetCount() > 0) {
+	if (foundPath->size() > 0) {
 		MathBresenham bresenham;
-		static ListReader<uint> *lrTile = new ListReader<uint>();
-		static ListReader<uint> *lrLineTile = new ListReader<uint>();
+		std::list<uint *>::iterator lrTile;
+		std::list<uint *>::iterator lrLineTile;
+
 		uint *curTile;
 		uint *nextTile;
 		float curDistance = 0.0f;
 
-		lrTile->Attach(foundPath);
-		lrLineTile->Attach(foundPath);
-		curTile = lrTile->GoFirstRef();
-		while(curTile) {
-			nextTile = lrLineTile->GoLastRef();
+		lrTile = foundPath->begin();
+		while(lrTile != foundPath->end()) {
+			curTile = *lrTile;
+
+			lrLineTile = foundPath->end()--;
+			nextTile = *lrLineTile;
 			if (nextTile == curTile)
 				break;
 			while(1) {
@@ -385,32 +378,34 @@ List<uint> *Pathfinder::GetPath(const ushort &startX, const ushort &startY, cons
 				}
 				if (ok) {
 					while(1) {
-						nextTile = lrLineTile->GoPrevRef();
+						lrLineTile--;
+						nextTile = *lrLineTile;
 						if (nextTile == curTile)
 							break;
-						foundPath->RemoveElement(nextTile);
+						foundPath->remove(nextTile);
 					}
 					if (limitDistance > 0) {
 						curDistance += sqrt(pow((float)(x - lastGoodX), 2) + pow((float)(y - lastGoodY), 2));
 						if (curDistance + 1.0f > limitDistance) {
-							nextTile = lrLineTile->GoLastRef();
 							while(1) {
+								nextTile = foundPath->back();
 								if (nextTile == curTile)
 									break;
-								foundPath->RemoveElement(nextTile);
+								foundPath->remove(nextTile);
 							}
 							nextTile = new uint(PackCoords(lastGoodX, lastGoodY));
-							foundPath->AddElement(nextTile);
+							foundPath->push_back(nextTile);
 						}
 					}
 					break;
 				} else {
-					nextTile = lrLineTile->GoPrevRef();
+					lrLineTile--;
+					nextTile = *lrLineTile;
 					if (nextTile == curTile)
 						break;
 				}
 			}
-			curTile = lrTile->GoNextRef();
+			lrTile++;
 		}
 	}
 

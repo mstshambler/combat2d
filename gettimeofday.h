@@ -1,5 +1,4 @@
 #ifndef _gettimeofday_h
-
 #define _gettimeofday_h
 
 #ifdef WIN32

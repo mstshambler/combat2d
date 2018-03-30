@@ -1,8 +1,9 @@
 #ifndef _level_h
 #define _level_h
 
+#include <list>
+
 #include "common.h"
-#include "list.h"
 #include "math.h"
 
 class LevelTile {
@@ -57,7 +58,7 @@ public:
 	Pathfinder(Level *l);
 	~Pathfinder();
 
-	List<uint> *GetPath(const ushort &startX, const ushort &startY, const ushort &endX, const ushort &endY, const ushort &size = 1, const int &limitDistance = -1);
+	std::list<uint *> *GetPath(const ushort &startX, const ushort &startY, const ushort &endX, const ushort &endY, const ushort &size = 1, const int &limitDistance = -1);
 	uint PrepareNodes(const ushort &startX, const ushort &startY, const ushort &endX, const ushort &endY, const ushort &size = 1);
 	bool CheckSize(const ushort &x, const ushort &y, const ushort &size = 1);
 };
