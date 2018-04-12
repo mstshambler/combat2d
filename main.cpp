@@ -131,6 +131,8 @@ GUI *gui;
 
 struct timeval tick_otime, tick_ntime, tick_diff;
 
+int clamp_mode;
+
 static void CalculateFrame(void) {
 	float overall_msecs;
 	float local_mousepos[2];
@@ -164,7 +166,21 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	if (key != GLFW_KEY_UNKNOWN) {
 		if (action == GLFW_PRESS) {
 			global_keys[key] = true;
-			global_keysOnce[key] = true;
+			// global_keysOnce[key] = true;
+
+			if (key == GLFW_KEY_ESCAPE)
+				glfwSetWindowShouldClose(window, 1);
+			else if (key == GLFW_KEY_0)
+				clamp_mode = 0;
+			else if (key == GLFW_KEY_1)
+				clamp_mode = 1;
+			else if (key == GLFW_KEY_2)
+				clamp_mode = 2;
+			else if (key == GLFW_KEY_3)
+				clamp_mode = 3;
+			else if (key == GLFW_KEY_4)
+				clamp_mode = 4;
+
 		} else if (action == GLFW_RELEASE) {
 			global_keys[key] = false;
 		}
@@ -242,6 +258,8 @@ int main(void)
 			global_mouse[i] = false;
 	}
 	
+	clamp_mode = 0;
+
 	while ( !glfwWindowShouldClose(window) ) {
 		glfwPollEvents();
 
@@ -252,6 +270,12 @@ int main(void)
 		renderer->Set2DMode();
 
 		gui->DrawString(0.0f, 768.0f, "Ninja", 16.0f, 2.0f);
+
+		texturer->Bind(texturer->GetWhite());
+		renderer->DrawRect(100.0f, 668.0f, 100.0f, 32.0f, 0.0f, 0.0f, 0.0f, 0.1f);
+		renderer->DrawBorder(100.0f, 668.0f, 100.0f, 32.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+		gui->DrawString(102.0f, 666.0f, "Button", 16.0f, 2.0f);
+
 		gui->DrawCursor(global_mousepos[0], global_mousepos[1], 0);
 
 		renderer->End2DMode();

@@ -51,7 +51,7 @@ void GUI::DrawString(const float x, const float y, const std::string &text, cons
 	px = x;
 	
 	while(*c) {
-		renderer->DrawRect(px, y, size, size, (*c % 32) * cell, floor(*c / 32.0f) * cell, cell, cell);
+		renderer->DrawTexturedRect(px, y, size, size, (*c % 32) * cell, floor(*c / 32.0f) * cell, cell, cell);
 		px += (float)fontCharSize[*c] * (size / 16.0f) + padding;
 		c++;
 	}
@@ -75,4 +75,85 @@ void GUI::DrawCursor(const float x, const float y, const int mode) const {
 
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}
+
+
+	float pos[2];
+	float size[2];
+	byte align[2];
+	byte enabled;
+
+GUIElement::GUIElement() {
+	pos[0] = pos[1] = 0.0f;
+	size[0] = size[1] = 0.0f;
+	align[0] = align[1] = GUIElementAlign_LeftTop;
+	enabled = 0;
+}
+
+void GUIElement::SetPos(const float &x, const float &y) {
+	pos[0] = x;
+	pos[1] = y;
+}
+
+float GUIElement::GetPos(float *x, float *y) const {
+	if (x)
+		*x = pos[0];
+	if (y)
+		*y = pos[1];
+}
+
+float GUIElement::GetPosX() const {
+	return pos[0];
+}
+
+float GUIElement::GetPosY() const {
+	return pos[1];
+}
+
+void GUIElement::SetSize(const float &width, const float &height) {
+	size[0] = width;
+	size[1] = height;
+}
+
+float GUIElement::GetSize(float *width, float *height) const {
+	if (width)
+		*width = size[0];
+	if (height)
+		*height = size[1];
+}
+
+float GUIElement::GetSizeX() const {
+	return size[0];
+}
+
+float GUIElement::GetSizeY() const {
+	return size[1];
+}
+
+void GUIElement::SetAlign(const byte &x, const byte &y) {
+	align[0] = x;
+	align[1] = y;
+}
+
+byte GUIElement::GetAlign(byte *x, byte *y) const {
+	if (x)
+		*x = align[0];
+	if (y)
+		*y = align[1];
+}
+
+byte GUIElement::GetAlignX() const {
+	return align[0];
+}
+
+byte GUIElement::GetAlignY() const {
+	return align[1];
+}
+
+byte GUIElement::SetEnabled(const byte v) {
+	enabled = v;
+}
+
+byte GUIElement::GetEnabled() const {
+	return enabled;
 }

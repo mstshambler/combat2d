@@ -1,5 +1,3 @@
-#include <string>
-
 #include <GLFW/glfw3.h>
 
 #include "texture.h"
@@ -48,10 +46,14 @@ int Texture::LoadTexture(const std::string &name, GLuint &id) {
 }
 
 void Texture::LoadTexturesList() {
+	if (LoadTexture("data/textures/gui/white.tga", texnum_white) == 0)
+		printf("Failed to load white texture\n");
 	if (LoadTexture("data/textures/fonts/font16new.tga", texnum_fontFixed) == 0)
 		printf("Failed to load font\n");
 	if (LoadTexture("data/textures/gui/cursors.tga", texnum_GUICursors) == 0)
 		printf("Failed to load cursors\n");
+	if (LoadTexture("data/textures/gui/interface.tga", texnum_GUIInterface) == 0)
+		printf("Failed to load interface\n");
 }
 
 GLuint Texture::GetFontFixed() const {
@@ -60,4 +62,12 @@ GLuint Texture::GetFontFixed() const {
 
 GLuint Texture::GetGUICursors() const {
 	return texnum_GUICursors;
+}
+
+GLuint Texture::GetGUIInterface() const {
+	return texnum_GUIInterface;
+}
+
+GLuint Texture::GetWhite() const {
+	return texnum_white;
 }

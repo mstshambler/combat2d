@@ -176,7 +176,7 @@ void Render::Clear (void) const {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void Render::DrawRect(const float &x, const float &y, const float &width, const float &height, const float &tx, const float &ty, const float &t_width, const float &t_height) const {
+void Render::DrawTexturedRect(const float &x, const float &y, const float &width, const float &height, const float &tx, const float &ty, const float &t_width, const float &t_height) const {
 	DrawSprite(x + width / 2, y - height / 2, width, height, tx, ty, t_width, t_height, 0);
 }
 
@@ -204,4 +204,29 @@ void Render::DrawSprite(const float &x, const float &y, const float &width, cons
 void Render::ConvertWindowToScreenCoords(const float &x, const float &y, float &sx, float &sy) const {
 	sx = x * screenWidth2D / screenWidth;
 	sy = screenHeight2D - 1.0f - y * screenHeight2D / screenHeight;
+}
+
+void Render::DrawBorder(const float &x, const float &y, const float &width, const float &height, const float &size, const float &r, const float &g, const float &b, const float &a) const {
+	glLineWidth(size);
+	glColor4f(r, g, b, a);
+	glBegin(GL_LINE_LOOP);
+	glVertex2f(x, y);
+	glVertex2f(x + width, y);
+	glVertex2f(x + width, y - height);
+	glVertex2f(x, y - height);
+	glEnd();
+	glLineWidth(1.0f);
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+}
+
+void Render::DrawRect(const float &x, const float &y, const float &width, const float &height, const float &r, const float &g, const float &b, const float &a) const {
+	glColor4f(r, g, b, a);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex2f(x, y);
+	glVertex2f(x + width, y);
+	glVertex2f(x + width, y - height);
+	glVertex2f(x, y - height);
+	glEnd();
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 }

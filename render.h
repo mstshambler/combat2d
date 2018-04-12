@@ -27,8 +27,10 @@ public:
 	int GetScreenHeight() const;
 	void Reshape(const int &width, const int &height);
 
-	void DrawRect(const float &x, const float &y, const float &width, const float &height, const float &tx, const float &ty, const float &t_width, const float &t_height) const;
+	void DrawTexturedRect(const float &x, const float &y, const float &width, const float &height, const float &tx, const float &ty, const float &t_width, const float &t_height) const;
 	void DrawSprite(const float &x, const float &y, const float &width, const float &height, const float &tx, const float &ty, const float &t_width, const float &t_height, const float &angle) const;
+	void DrawBorder(const float &x, const float &y, const float &width, const float &height, const float &size, const float &r, const float &g, const float &b, const float &a) const;
+	void DrawRect(const float &x, const float &y, const float &width, const float &height, const float &r, const float &g, const float &b, const float &a) const;
 	void ConvertWindowToScreenCoords(const float &x, const float &y, float &sx, float &sy) const;
 };
 
