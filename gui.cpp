@@ -77,17 +77,18 @@ void GUI::DrawCursor(const float x, const float y, const int mode) const {
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
-
-	float pos[2];
-	float size[2];
-	byte align[2];
-	byte enabled;
-
 GUIElement::GUIElement() {
 	pos[0] = pos[1] = 0.0f;
 	size[0] = size[1] = 0.0f;
 	align[0] = align[1] = GUIElementAlign_LeftTop;
 	enabled = 0;
+	parent = NULL;
+	childs = new std::list<GUIElement *>();
+	type = GUIElementType_None;
+}
+
+GUIElement::~GUIElement() {
+	delete childs;
 }
 
 void GUIElement::SetPos(const float &x, const float &y) {
@@ -150,10 +151,60 @@ byte GUIElement::GetAlignY() const {
 	return align[1];
 }
 
-byte GUIElement::SetEnabled(const byte v) {
+void GUIElement::SetEnabled(const byte v) {
 	enabled = v;
 }
 
 byte GUIElement::GetEnabled() const {
 	return enabled;
+}
+
+void GUIElement::SetType(const byte t) {
+	type = t;
+}
+
+byte GUIElement::GetType() const {
+	return type;
+}
+
+void GUIElement::SetParent(GUIElement *elem) {
+	parent = elem;
+}
+
+GUIElement *GUIElement::GetParent() const {
+	return parent;
+}
+
+void GUIElement::AddChild(GUIElement *elem) {
+	if (elem != NULL)
+		childs->push_back(elem);
+}
+
+void GUIElement::RemoveChild(GUIElement *elem) {
+	if (elem != NULL)
+		childs->remove(elem);
+}
+
+std::list<GUIElement *> *GUIElement::GetChilds() const {
+	return childs;
+}
+
+void GUIElement::Render() const {
+
+}
+
+GUIElementText::GUIElementText() {
+	text = new std::string();
+}
+
+~GUIElementText::GUIElementText() {
+	delete text;
+}
+
+void GUIElementText::SetText(std::string &t) {
+	*text = t;
+}
+
+std::string *GUIElementText::GetText() const {
+	return text;
 }

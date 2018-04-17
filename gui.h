@@ -2,6 +2,7 @@
 #define _gui_h
 
 #include <string>
+#include <list>
 
 #include "common.h"
 #include "render.h"
@@ -13,10 +14,13 @@ protected:
 	float size[2];
 	byte align[2];
 	byte enabled;
+	GUIElement *parent;
+	std::list<GUIElement *> *childs;
+	byte type;
 
 public:
 	GUIElement();
-	~GUIElement();
+	virtual ~GUIElement();
 
 	enum GUIElementAlign {
 		GUIElementAlign_LeftTop = 0,
@@ -24,23 +28,60 @@ public:
 		GUIElementAlign_Center = 2
 	};
 
-	virtual void SetPos(const float &x, const float &y);
-	virtual float GetPos(float *x, float *y) const;
-	virtual float GetPosX() const;
-	virtual float GetPosY() const;
+	enum GUIElementType {
+		GUIElementType_None = 0
+		GUIElementType_Text,
+		GUIElementType_Button,
+		GUIElementType_Checkbox,
+		GUIElementType_List,
+		GUIElementType_Combolist,
+		GUIElementType_Edit,
+		GUIElementType_Table,
+		GUIElementType_TableRow,
+		GUIElementType_Last
+	};
 
-	virtual void SetSize(const float &width, const float &height);
-	virtual float GetSize(float *width, float *height) const;
-	virtual float GetSizeX() const;
-	virtual float GetSizeY() const;
+	void SetPos(const float &x, const float &y);
+	float GetPos(float *x, float *y) const;
+	float GetPosX() const;
+	float GetPosY() const;
 
-	virtual void SetAlign(const byte &x, const byte &y);
-	virtual byte GetAlign(byte *x, byte *y) const;
-	virtual byte GetAlignX() const;
-	virtual byte GetAlignY() const;
+	void SetSize(const float &width, const float &height);
+	float GetSize(float *width, float *height) const;
+	float GetSizeX() const;
+	float GetSizeY() const;
 
-	virtual byte SetEnabled(const byte v);
-	virtual byte GetEnabled() const;
+	void SetAlign(const byte &x, const byte &y);
+	byte GetAlign(byte *x, byte *y) const;
+	byte GetAlignX() const;
+	byte GetAlignY() const;
+
+	void SetEnabled(const byte v);
+	byte GetEnabled() const;
+
+	void SetType(const byte t);
+	byte GetType() const;
+
+	void SetParent(GUIElement *elem);
+	GUIElement *GetParent() const;
+
+	void AddChild(GUIElement *elem);
+	void RemoveChild(GUIElement *elem);
+	std::list<GUIElement *> *GetChilds() const;
+
+	virtual Render() const;
+};
+
+class GUIElementText : GUIElement {
+protected:
+	std::string *text;
+
+public:
+	GUIElementText();
+	~GUIElementText();
+
+	void SetText(std::string &t);
+	std::string *GetText() const;
 };
 
 class GUI {

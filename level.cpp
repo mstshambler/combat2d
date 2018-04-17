@@ -382,16 +382,23 @@ std::list<uint *> *Pathfinder::GetPath(const ushort &startX, const ushort &start
 						nextTile = *lrLineTile;
 						if (nextTile == curTile)
 							break;
-						foundPath->remove(nextTile);
+						foundPath->erase(lrLineTile);
 					}
 					if (limitDistance > 0) {
 						curDistance += sqrt(pow((float)(x - lastGoodX), 2) + pow((float)(y - lastGoodY), 2));
 						if (curDistance + 1.0f > limitDistance) {
 							while(1) {
+								lrLineTile = foundPath->end()--;
+								nextTile = *lrLineTile;
+								if (nextTile == curTile)
+									break;
+								foundPath->erase(lrLineTile);
+								/*
 								nextTile = foundPath->back();
 								if (nextTile == curTile)
 									break;
 								foundPath->remove(nextTile);
+								*/
 							}
 							nextTile = new uint(PackCoords(lastGoodX, lastGoodY));
 							foundPath->push_back(nextTile);
