@@ -98,15 +98,6 @@ void Render::Begin(int width, int height) const {
 	glMatrixMode(GL_MODELVIEW);
     glLoadIdentity ();
 
-	// Make Z look up (first person view)
-	glRotatef(-90, 1, 0, 0);
-//	glRotatef(90, 0, 0, 1);
-
-	glRotatef(0.0f,  1, 0, 0);
-	glRotatef(0.0f, 0, 1, 0);
-	glRotatef(0.0f, 0, 0, 1);
-
-	glTranslatef(0.0f, 0.0f, 0.0f);
 	glColor4f(1.0, 1.0, 1.0, 1.0);
 }
 
@@ -136,7 +127,7 @@ void Render::End() const {
 	glDisable (GL_ALPHA_TEST);
 }
 
-void Render::Set2DMode(int width, int height) {
+void Render::Set2DMode(int width, int height, int ignoreStack) {
 	if (width == -1)
 		width = screenWidth;
 	if (height == -1)
@@ -146,27 +137,31 @@ void Render::Set2DMode(int width, int height) {
 	screenHeight2D = height;
 
 	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
+	if (!ignoreStack)
+		glPushMatrix();
     glLoadIdentity();
 
 	glOrtho(0, width, 0, height, -1, 1);
 
 	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
+	if (!ignoreStack)
+		glPushMatrix();
     glLoadIdentity ();
 
-	glDisable (GL_DEPTH_TEST);
+	//glDisable (GL_DEPTH_TEST);
 	glDisable (GL_CULL_FACE);
 	glEnable (GL_ALPHA_TEST);
 
 	glColor4f (1,1,1,1);
 }
 
-void Render::End2DMode() const {
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
+void Render::End2DMode(int ignoreStack) const {
+	if (!ignoreStack) {
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
+		glMatrixMode(GL_MODELVIEW);
+		glPopMatrix();
+	}
 }
 
 void Render::Shutdown(void) const {
@@ -201,6 +196,27 @@ void Render::DrawSprite(const float &x, const float &y, const float &width, cons
 	glPopMatrix();
 }
 
+void Render::DrawSprite3D(const float &x, const float &y, const float &z, const float &width, const float &height, const float &tx, const float &ty, const float &t_width, const float &t_height, const float &angle) {
+	glPushMatrix();
+	glTranslatef(x, y, z);
+	glRotatef(angle, 0.0f, 0.0f, 1.0f);
+
+	glBegin(GL_QUADS);
+	glTexCoord2f(tx, ty);
+	glVertex3f(-width/2.0f, 0.0f, height/2.0f);
+
+	glTexCoord2f(tx + t_width, ty);
+	glVertex3f(width/2.0f, 0.0f, height/2.0f);
+
+	glTexCoord2f(tx + t_width, ty + t_height);
+	glVertex3f(width/2.0f, 0.0f, -height/2.0f);
+
+	glTexCoord2f(tx, ty + t_height);
+	glVertex3f(-width/2.0f, 0.0f, -height/2.0f);
+	glEnd();
+	glPopMatrix();
+}
+
 void Render::ConvertWindowToScreenCoords(const float &x, const float &y, float &sx, float &sy) const {
 	sx = x * screenWidth2D / screenWidth;
 	sy = screenHeight2D - 1.0f - y * screenHeight2D / screenHeight;
@@ -229,4 +245,33 @@ void Render::DrawRect(const float &x, const float &y, const float &width, const 
 	glVertex2f(x, y - height);
 	glEnd();
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+}
+
+void Render::ReadCoordsUnderCursor(const int &x, const int &y, float *ox, float *oy, float *oz) {
+	GLfloat wy, wz;
+	GLdouble objpos[3];
+	GLdouble model_view[16];
+	GLdouble projection[16];
+	GLint viewport[4];
+
+	glGetDoublev(GL_MODELVIEW_MATRIX, model_view);
+	glGetDoublev(GL_PROJECTION_MATRIX, projection);
+	glGetIntegerv(GL_VIEWPORT, viewport);
+
+	glReadBuffer(GL_FRONT);
+	wy = (float)viewport[3] - (float)y;
+	glReadPixels(x, wy, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &wz);
+	gluUnProject(x, wy, wz,
+		model_view, projection, viewport,
+		&objpos[0], &objpos[1], &objpos[2]);
+
+	objpos[1] *= -1;
+	glReadBuffer(GL_BACK);
+
+	if (ox)
+		*ox = (float)objpos[0];
+	if (oy)
+		*oy = (float)objpos[1];
+	if (oz)
+		*oz = (float)objpos[2];
 }

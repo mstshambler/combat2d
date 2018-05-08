@@ -30,7 +30,10 @@ int Texture::LoadTexture(const std::string &name, GLuint &id) {
 	if (bp) {
 		glGenTextures(1, &id);
 		Bind(id);
-
+		
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 		if (channels == 3)
@@ -54,6 +57,15 @@ void Texture::LoadTexturesList() {
 		printf("Failed to load cursors\n");
 	if (LoadTexture("data/textures/gui/interface.tga", texnum_GUIInterface) == 0)
 		printf("Failed to load interface\n");
+	
+	if (LoadTexture("data/textures/test.png", texnum_test) == 0)
+		printf("Failed to load test\n");
+
+	if (LoadTexture("data/textures/tiles/testtile.tga", texnum_tile) == 0)
+		printf("Failed to load tile\n");
+
+	if (LoadTexture("data/textures/testchar.tga", texnum_testChar) == 0)
+		printf("Failed to load test char\n");
 }
 
 GLuint Texture::GetFontFixed() const {
@@ -70,4 +82,16 @@ GLuint Texture::GetGUIInterface() const {
 
 GLuint Texture::GetWhite() const {
 	return texnum_white;
+}
+
+GLuint Texture::GetTest() const {
+	return texnum_test;
+}
+
+GLuint Texture::GetTile() const {
+	return texnum_tile;
+}
+
+GLuint Texture::GetTestChar() const {
+	return texnum_testChar;
 }

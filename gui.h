@@ -29,7 +29,7 @@ public:
 	};
 
 	enum GUIElementType {
-		GUIElementType_None = 0
+		GUIElementType_None = 0,
 		GUIElementType_Text,
 		GUIElementType_Button,
 		GUIElementType_Checkbox,
@@ -69,7 +69,7 @@ public:
 	void RemoveChild(GUIElement *elem);
 	std::list<GUIElement *> *GetChilds() const;
 
-	virtual Render() const;
+	virtual void Render() const;
 };
 
 class GUIElementText : GUIElement {

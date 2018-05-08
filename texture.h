@@ -19,12 +19,22 @@ public:
 	GLuint GetGUICursors() const;
 	GLuint GetFontFixed() const;
 
+	GLuint GetTest() const;
+
+	GLuint GetTile() const;
+	GLuint GetTestChar() const;
+
 protected:
 	GLuint texnum_white;
 	GLuint texnum_current;
 	GLuint texnum_fontFixed;
 	GLuint texnum_GUICursors;
 	GLuint texnum_GUIInterface;
+
+	GLuint texnum_test;
+
+	GLuint texnum_tile;
+	GLuint texnum_testChar;
 };
 
 #endif

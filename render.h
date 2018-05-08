@@ -18,8 +18,8 @@ public:
 	void SetTextureMode() const;
 	void Begin(int width = -1, int height = -1) const;
 	void End() const;
-	void Set2DMode(int width = -1, int height = -1);
-	void End2DMode() const;
+	void Set2DMode(int width = -1, int height = -1, int ignoreStack = 1);
+	void End2DMode(int ignoreStack = 1) const;
 	void Shutdown() const;
 	void Clear() const;
 
@@ -32,6 +32,9 @@ public:
 	void DrawBorder(const float &x, const float &y, const float &width, const float &height, const float &size, const float &r, const float &g, const float &b, const float &a) const;
 	void DrawRect(const float &x, const float &y, const float &width, const float &height, const float &r, const float &g, const float &b, const float &a) const;
 	void ConvertWindowToScreenCoords(const float &x, const float &y, float &sx, float &sy) const;
+
+	void ReadCoordsUnderCursor(const int &x, const int &y, float *ox, float *oy, float *oz);
+	void DrawSprite3D(const float &x, const float &y, const float &z, const float &width, const float &height, const float &tx, const float &ty, const float &t_width, const float &t_height, const float &angle);
 };
 
 #endif

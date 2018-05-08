@@ -55,8 +55,6 @@ void GUI::DrawString(const float x, const float y, const std::string &text, cons
 		px += (float)fontCharSize[*c] * (size / 16.0f) + padding;
 		c++;
 	}
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
 void GUI::DrawCursor(const float x, const float y, const int mode) const {
@@ -72,9 +70,6 @@ void GUI::DrawCursor(const float x, const float y, const int mode) const {
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	
 	renderer->DrawSprite(local_mousepos[0], local_mousepos[1], 32.0f, 32.0f, 0.0f, 0.0f, cell, cell, 0.0f);
-
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
 GUIElement::GUIElement() {
@@ -197,7 +192,7 @@ GUIElementText::GUIElementText() {
 	text = new std::string();
 }
 
-~GUIElementText::GUIElementText() {
+GUIElementText::~GUIElementText() {
 	delete text;
 }
 
