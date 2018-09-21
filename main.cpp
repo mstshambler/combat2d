@@ -309,8 +309,8 @@ int main(void) {
 		double scale = 10;
 		glOrtho(-scale,
 			scale,
-			-scale * 0.7,
-			scale * 0.7,
+			-scale * 0.75,
+			scale * 0.75,
 			-scale,
 			scale);
 
@@ -327,47 +327,104 @@ int main(void) {
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		glBegin(GL_QUADS);
 		glTexCoord2f(0.0f, 0.0f);
+		glVertex3f(0.0f, 1.0f, 0.0f);
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex3f(1.0f, 1.0f, 0.0f);
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex3f(1.0f, 0.0f, 0.0f);
+		glTexCoord2f(0.0f, 1.0f);
 		glVertex3f(0.0f, 0.0f, 0.0f);
-		glTexCoord2f(1.0f, 0.0f);
-		glVertex3f(1.0f, 0.0f, 0.0f);
-		glTexCoord2f(1.0f, 1.0f);
-		glVertex3f(1.0f, -1.0f, 0.0f);
-		glTexCoord2f(0.0f, 1.0f);
-		glVertex3f(0.0f, -1.0f, 0.0f);
 
 		glTexCoord2f(0.0f, 0.0f);
-		glVertex3f(1.0f, 0.0f, 0.0f);
+		glVertex3f(1.0f, 1.0f, 0.0f);
 		glTexCoord2f(1.0f, 0.0f);
-		glVertex3f(2.0f, 0.0f, 0.0f);
+		glVertex3f(2.0f, 1.0f, 0.0f);
 		glTexCoord2f(1.0f, 1.0f);
-		glVertex3f(2.0f, -1.0f, 0.0f);
+		glVertex3f(2.0f, 0.0f, 0.0f);
 		glTexCoord2f(0.0f, 1.0f);
-		glVertex3f(1.0f, -1.0f, 0.0f);
+		glVertex3f(1.0f, 0.0f, 0.0f);
 
 		glTexCoord2f(0.0f, 0.0f);
-		glVertex3f(2.0f, 0.0f, 0.0f);
+		glVertex3f(2.0f, 1.0f, 0.0f);
 		glTexCoord2f(1.0f, 0.0f);
+		glVertex3f(3.0f, 1.0f, 0.0f);
+		glTexCoord2f(1.0f, 1.0f);
 		glVertex3f(3.0f, 0.0f, 0.0f);
-		glTexCoord2f(1.0f, 1.0f);
-		glVertex3f(3.0f, -1.0f, 0.0f);
 		glTexCoord2f(0.0f, 1.0f);
-		glVertex3f(2.0f, -1.0f, 0.0f);
+		glVertex3f(2.0f, 0.0f, 0.0f);
 		glEnd();
 
 		
 		texturer->Bind(texturer->GetTestChar());
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
 		{
 			float cell = 16.0f / 512.0f;
 
+			/*
 			renderer->DrawSprite3D(0.5f, -0.5f, 1.0f, 1.0f, 2.0f, cell*2.0f, 0.0, cell, cell * 2, -45.0f);
 			renderer->DrawSprite3D(0.5f, -0.5f, 1.0f, 1.0f, 2.0f, 0.0, 0.0, cell, cell * 2, -45.0f);
 			renderer->DrawSprite3D(0.5f, -0.5f, 1.0f, 1.0f, 2.0f, cell, 0.0, cell, cell * 2, -45.0f);
+			*/
+			glPushMatrix();
+
+			glTranslatef(0.5f, 0.5f, 1.0f);
+
+			glRotatef(-45.0f, 0.0f, 0.0f, 1.0f);
+
+			// body
+			glBegin(GL_QUADS);
+			glTexCoord2f(0.0f, cell * 2.0f);
+			glVertex3f(-0.5f, 0.0f, 1.0f);
+			glTexCoord2f(cell, cell * 2.0f);
+			glVertex3f(0.5f, 0.0f, 1.0f);
+			glTexCoord2f(cell, cell * 4.0f);
+			glVertex3f(0.5f, 0.0f, -1.0f);
+			glTexCoord2f(0.0f, cell * 4.0f);
+			glVertex3f(-0.5f, 0.0f, -1.0f);
+			glEnd();
+			/*
+			// upper leg
+			glPushMatrix();
+			glTranslatef(-0.3f, -0.01f, -1.0f);
+			glRotatef(45.0f, 0.0f, 1.0f, 0.0f);
+
+			glBegin(GL_QUADS);
+			glTexCoord2f(cell, cell * 2.0f);
+			glVertex3f(-0.5f, 0.0f, 1.0f);
+			glTexCoord2f(cell * 2.0f, cell * 2.0f);
+			glVertex3f(0.5f, 0.0f, 1.0f);
+			glTexCoord2f(cell * 2.0f, cell * 4.0f);
+			glVertex3f(0.5f, 0.0f, -1.0f);
+			glTexCoord2f(cell, cell * 4.0f);
+			glVertex3f(-0.5f, 0.0f, -1.0f);
+			glEnd();
+
+			// lower leg
+			glPushMatrix();
+			glTranslatef(0.0f, -0.01f, -1.0f);
+			glRotatef(45.0f, 0.0f, 1.0f, 0.0f);
+
+			glBegin(GL_QUADS);
+			glTexCoord2f(cell * 2.0f, cell * 2.0f);
+			glVertex3f(-0.5f, 0.0f, 1.0f);
+			glTexCoord2f(cell * 3.0f, cell * 2.0f);
+			glVertex3f(0.5f, 0.0f, 1.0f);
+			glTexCoord2f(cell * 3.0f, cell * 4.0f);
+			glVertex3f(0.5f, 0.0f, -1.0f);
+			glTexCoord2f(cell * 2.0f, cell * 4.0f);
+			glVertex3f(-0.5f, 0.0f, -1.0f);
+			glEnd();
+
+
+			// back
+			glPopMatrix();
+			glPopMatrix();
+			*/
+			glPopMatrix();
+
 		}
 
-		
 		{
 			renderer->ReadCoordsUnderCursor((int)global_mousepos[0], (int)global_mousepos[1], &ox, &oy, &oz);
 		}
