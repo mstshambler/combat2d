@@ -228,11 +228,11 @@ int Math::BresenhamLineStep(MathBresenham &bresenham, int *x, int *y) {
 }
 
 float Math::DegreeToRadian(const float &f) {
-	return f / 180.0f * M_PI;
+	return f / 180.0f * (float)M_PI;
 }
 
 float Math::RadianToDegree(const float &f) {
-	return f / M_PI * 180.0f;
+	return f / (float)M_PI * 180.0f;
 }
 
 void Math::CalculateVector(const float &f, Vector &res) {

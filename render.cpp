@@ -1,5 +1,8 @@
 #define _USE_MATH_DEFINES
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #ifndef WIN32
 #include <sys/time.h>
 #endif
@@ -10,9 +13,224 @@
 
 #include "render.h"
 
+RenderFontCharacter::RenderFontCharacter(const int &pos_x, const int &pos_y, const int &bearing_x, const int &bearing_y, const GLuint &shift_x, const GLuint &shift_y) {
+	pos.Set(pos_x, pos_y);
+	bearing.Set(bearing_x, bearing_y);
+	shift[0] = shift_x;
+	shift[1] = shift_y;
+}
+
+RenderFontCharacter::~RenderFontCharacter() {
+}
+
+PointInt *RenderFontCharacter::Pos() {
+	return &pos;
+}
+
+PointInt *RenderFontCharacter::Bearing() {
+	return &bearing;
+}
+
+GLuint RenderFontCharacter::GetShiftX() const {
+	return shift[0];
+}
+
+GLuint RenderFontCharacter::GetShiftY() const {
+	return shift[1];
+}
+
+
+
+
+
+
+RenderFont::RenderFont(const wstring &name, const int &size, const int &pixelSize, FT_Library &ftLibrary, list<GLuint> &usableChars) {
+	FT_Face ftFace;
+	string pathToFont;
+	list<GLuint>::iterator uci;
+
+	uint i;
+	int charsCount = 0;
+	int charsX = 0;
+	int charsY = 0;
+	int charPosX = 0;
+	int charPosY = 0;
+	byte *texBuffer;
+
+	title = new wstring();
+	*title = name;
+	this->size = size;
+	this->pixelSize = pixelSize;
+
+	pathToFont = "data/fonts/";
+	{
+		char buf[256];
+
+		wcstombs(buf, name.c_str(), 250);
+		buf[250] = 0;
+		pathToFont.append(buf);
+	}
+
+	if (FT_New_Face(ftLibrary, pathToFont.c_str(), 0, &ftFace))
+		printf("FreeType: face init error");
+
+	FT_Set_Pixel_Sizes(ftFace, 0, pixelSize);
+	//FT_Set_Pixel_Sizes(ftFace, pixelSize, 0);
+
+	for (uci = usableChars.begin(); uci != usableChars.end(); uci++) {
+		if (FT_Load_Char(ftFace, *uci, FT_LOAD_RENDER))
+			continue;
+
+		if (charSize.GetX() < ftFace->glyph->bitmap.width)
+			charSize.SetX(ftFace->glyph->bitmap.width);
+		if (charSize.GetY() < ftFace->glyph->bitmap.rows)
+			charSize.SetY(ftFace->glyph->bitmap.rows);
+		charsCount++;
+	}
+
+	// get initial texture width;
+	charsX = (int)sqrt(charsCount);
+	charsY = charsX;
+	if (charsX * charsY < charsCount)
+		charsX++;
+	texSize.SetX(charsX * charSize.GetX());
+
+	// make it power of 2
+	i = 1;
+	while (i < texSize.GetX())
+		i *= 2;
+	texSize.SetX(i);
+
+	// get texture height
+	charsX = (int)floor(texSize.GetX() / charSize.GetX());
+	charsY = (int)ceil(charsCount / charsY);
+	texSize.SetY(charSize.GetY() * charsY);
+
+	// make it power of 2 too
+	i = 1;
+	while (i < texSize.GetY())
+		i *= 2;
+	texSize.SetY(i);
+
+	texBuffer = new byte[texSize.GetX() * texSize.GetY()];
+	memset(texBuffer, 0, sizeof(byte)* texSize.GetX() * texSize.GetY());
+
+	for (uci = usableChars.begin(); uci != usableChars.end(); uci++) {
+		RenderFontCharacter *fontChar;
+		uint x, y, z;
+
+		if (FT_Load_Char(ftFace, *uci, FT_LOAD_RENDER))
+			continue;
+
+		fontChar = new RenderFontCharacter(charPosX * charSize.GetX(), charPosY * charSize.GetY(), ftFace->glyph->bitmap_left, ftFace->glyph->bitmap_top,
+			ftFace->glyph->advance.x >> 6, ftFace->glyph->advance.y >> 6);
+		chars.insert(pair<GLuint, RenderFontCharacter *>(*uci, fontChar));
+
+		for (y = 0, z = 0; y < ftFace->glyph->bitmap.rows; y++)
+		for (x = 0; x < ftFace->glyph->bitmap.width; x++, z++)
+			texBuffer[charPosY * charSize.GetY() * texSize.GetX() + y * texSize.GetX() + charPosX * charSize.GetX() + x] = ftFace->glyph->bitmap.buffer[z];
+
+		charPosX++;
+		if (charPosX >= charsX) {
+			charPosY++;
+			charPosX = 0;
+		}
+	}
+
+	glGenTextures(1, &texId);
+	glBindTexture(GL_TEXTURE_2D, texId);
+
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, texSize.GetX(), texSize.GetY(), 0, GL_ALPHA, GL_UNSIGNED_BYTE, texBuffer);
+
+	delete texBuffer;
+	FT_Done_Face(ftFace);
+}
+
+RenderFont::~RenderFont() {
+	delete title;
+}
+
+RenderFontCharacter *RenderFont::GetCharacterInfo(const GLuint &charId) {
+	map<GLuint, RenderFontCharacter *>::iterator ci;
+
+	ci = chars.find(charId);
+	if (ci != chars.end())
+		return ci->second;
+	return NULL;
+}
+
+wstring *RenderFont::GetTitle() const {
+	return title;
+}
+
+int RenderFont::GetSize() const {
+	return size;
+}
+
+int RenderFont::GetPixelSize() const {
+	return pixelSize;
+}
+
+GLuint RenderFont::GetTexture() const {
+	return texId;
+}
+
+PointUInt *RenderFont::TextureSize() {
+	return &texSize;
+}
+
+PointUInt *RenderFont::CharacterSize() {
+	return &charSize;
+}
+
+
+
+
+
+
+
 Render::Render() {
+	FILE *fp;
+	int i;
+
 	screenWidth = 0;
 	screenHeight = 0;
+
+	// load available chars
+	for (i = 0; i < 256; i++)
+		usableChars.push_back(i);
+
+	fp = _wfopen(L"data/chars.cfg", L"rt+, ccs=UTF-8");
+	if (fp) {
+		wchar_t buf[24];
+
+		while (fgetws(buf, 16, fp)) {
+			usableChars.push_back(buf[0]);
+		}
+
+		fclose(fp);
+	}
+
+	fonts = new list<RenderFont *>();
+}
+
+Render::~Render() {
+	list<RenderFont *>::iterator fi;
+
+	if (fonts) {
+		for (fi = fonts->begin(); fi != fonts->end(); fi++)
+			delete *fi;
+
+		fonts->clear();
+		delete fonts;
+	}
 }
 
 int Render::GetScreenWidth() const {
@@ -76,6 +294,8 @@ void Render::Init(const int &width, const int &height) {
 	glDrawBuffer(GL_BACK);
 	glReadBuffer(GL_BACK);
 	glDisable(GL_LIGHT0);
+
+	InitFonts(1.0f);
 }
 
 void Render::Begin(int width, int height) const {
@@ -105,6 +325,7 @@ void Render::Begin(int width, int height) const {
 void Render::SetTextureMode() const {
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
+	glFrontFace(GL_CW);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -119,6 +340,8 @@ void Render::SetTextureMode() const {
 
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }
 
 void Render::End() const {
@@ -151,6 +374,9 @@ void Render::Set2DMode(int width, int height, int ignoreStack) {
 	//glDisable (GL_DEPTH_TEST);
 	glDisable (GL_CULL_FACE);
 	glEnable (GL_ALPHA_TEST);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glColor4f (1,1,1,1);
 }
@@ -248,7 +474,8 @@ void Render::DrawRect(const float &x, const float &y, const float &width, const 
 }
 
 void Render::ReadCoordsUnderCursor(const int &x, const int &y, float *ox, float *oy, float *oz) {
-	GLfloat wy, wz;
+	GLfloat wz;
+	GLint wy;
 	GLdouble objpos[3];
 	GLdouble model_view[16];
 	GLdouble projection[16];
@@ -259,7 +486,7 @@ void Render::ReadCoordsUnderCursor(const int &x, const int &y, float *ox, float 
 	glGetIntegerv(GL_VIEWPORT, viewport);
 
 	glReadBuffer(GL_FRONT);
-	wy = (float)viewport[3] - (float)y;
+	wy = viewport[3] - y;
 	glReadPixels(x, wy, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &wz);
 	gluUnProject(x, wy, wz,
 		model_view, projection, viewport,
@@ -274,4 +501,142 @@ void Render::ReadCoordsUnderCursor(const int &x, const int &y, float *ox, float 
 		*oy = (float)objpos[1];
 	if (oz)
 		*oz = (float)objpos[2];
+}
+
+void Render::InitFonts(const float &zoom) {
+	FT_Library ftLibrary;
+	RenderFont *font;
+	list<RenderFont *>::iterator fi;
+	float fontScale;
+
+	fontScale = (float)(screenHeight / 1080.0f) * zoom;
+
+	if (FT_Init_FreeType(&ftLibrary)) {
+		printf("FreeType: init error");
+		return;
+	}
+
+	for (fi = fonts->begin(); fi != fonts->end(); fi++)
+		delete *fi;
+
+	fonts->clear();
+	font = new RenderFont(L"arial.ttf", FontSize::FontSize_Tiny, (int)(16.0f * fontScale), ftLibrary, usableChars);
+	fonts->push_back(font);
+	font = new RenderFont(L"arial.ttf", FontSize::FontSize_Small, (int)(18.0f * fontScale), ftLibrary, usableChars);
+	fonts->push_back(font);
+	font = new RenderFont(L"arial.ttf", FontSize::FontSize_Medium, (int)(22.0f * fontScale), ftLibrary, usableChars);
+	fonts->push_back(font);
+	font = new RenderFont(L"arial.ttf", FontSize::FontSize_Large, (int)(32.0f * fontScale), ftLibrary, usableChars);
+	fonts->push_back(font);
+	font = new RenderFont(L"arial.ttf", FontSize::FontSize_Huge, (int)(48.0f * fontScale), ftLibrary, usableChars);
+	fonts->push_back(font);
+
+	FT_Done_FreeType(ftLibrary);
+}
+
+RenderFont *Render::FindFont(const int &size, const wstring &fontName) const {
+	RenderFont *font;
+	list<RenderFont *>::iterator fontI;
+
+	font = NULL;
+	fontI = fonts->begin();
+	while (fontI != fonts->end()) {
+		font = *fontI;
+		if (*font->GetTitle() == fontName && font->GetSize() == size) {
+			break;
+		}
+		fontI++;
+	}
+	return font;
+}
+
+void Render::DrawString(Texture *texturer, const float &x, const float &y, const int &size, const wstring &fontName, const wstring &text) const {
+	RenderFont *font;
+
+	font = FindFont(size, fontName);
+	if (font) {
+		wchar_t *c;
+		float px;
+
+		px = x;
+		c = (wchar_t *)text.c_str();
+
+		texturer->Bind(font->GetTexture());
+
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		while (*c) {
+			RenderFontCharacter *charInfo;
+
+			charInfo = font->GetCharacterInfo(*c);
+			if (charInfo) {
+				float tx, ty, sx, sy;
+
+				tx = (float)charInfo->Pos()->GetX() / (float)font->TextureSize()->GetX();
+				ty = (float)charInfo->Pos()->GetY() / (float)font->TextureSize()->GetY();
+				sx = (float)font->CharacterSize()->GetX() / (float)font->TextureSize()->GetX();
+				sy = (float)font->CharacterSize()->GetY() / (float)font->TextureSize()->GetY();
+
+				DrawTexturedRect(px + (float)charInfo->Bearing()->GetX(), y - (float)font->GetPixelSize() + (float)charInfo->Bearing()->GetY(),
+					(float)font->CharacterSize()->GetX(), (float)font->CharacterSize()->GetY(), tx, ty, sx, sy);
+				px += (float)charInfo->GetShiftX();
+			}
+			c++;
+		}
+	}
+}
+
+float Render::GetStringLength(const int &size, const wstring &fontName, const wstring &text) const {
+	RenderFont *font;
+	float px;
+
+	px = 0.0f;
+
+	font = FindFont(size, fontName);
+	if (font) {
+		wchar_t *c;
+
+		c = (wchar_t *)text.c_str();
+		while (*c) {
+			RenderFontCharacter *charInfo;
+
+			charInfo = font->GetCharacterInfo(*c);
+			if (charInfo)
+				px += (float)charInfo->GetShiftX();
+			c++;
+		}
+	}
+	return px;
+}
+
+float Render::GetStringHeight(const int &size, const wstring &fontName, const wstring &text) const {
+	RenderFont *font;
+	float py;
+
+	py = 0.0f;
+
+	font = FindFont(size, fontName);
+	if (font) {
+		return font->GetPixelSize();
+		/*
+		wchar_t *c;
+
+		c = (wchar_t *)text.c_str();
+		while (*c) {
+			RenderFontCharacter *charInfo;
+
+			charInfo = font->GetCharacterInfo(*c);
+			if (charInfo) {
+				float py2 = (float)font->GetPixelSize() + (float)charInfo->Bearing()->GetY();
+
+				if (py2 > py)
+					py = py2;
+			}
+			c++;
+		}
+		*/
+	}
+	return py;
 }

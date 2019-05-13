@@ -2,11 +2,12 @@
 #define _gettimeofday_h
 
 #ifdef WIN32
+/*
 struct timeval {
 	long tv_sec;
 	long tv_usec;
 };
-
+*/
 int gettimeofday(struct timeval *tp, void *tzp);
 #endif
 

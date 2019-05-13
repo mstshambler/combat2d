@@ -1,31 +1,56 @@
 #ifndef _gui_h
 #define _gui_h
 
-#include <string>
-#include <list>
-
 #include "common.h"
 #include "render.h"
 #include "texture.h"
 
+using namespace std;
+
+typedef int(*GUIElementClickAction)(int, int);
+typedef int(*GUIElementDragAction)(int, int, int, int);
+typedef int(*GUIElementKeyAction)(int, int, int);
+
 class GUIElement {
 protected:
-	float pos[2];
-	float size[2];
-	byte align[2];
+	PointInt pos;
+	PointInt pixelPos;
+	PointInt size;
+	PointInt pixelSize;
+	byte measureType;
+	byte align;
 	byte enabled;
 	GUIElement *parent;
-	std::list<GUIElement *> *childs;
+	list<GUIElement *> *childs;
 	byte type;
+	Render *renderer;
+	Texture *texturer;
+
+	GUIElementClickAction actionClick;
+	GUIElementDragAction actionDrag;
+	GUIElementKeyAction actionKeyPress;
+
+	wstring id;
 
 public:
 	GUIElement();
+	GUIElement(const wstring &id, const int &x, const int &y, const int &sizeX, const int &sizeY, const byte &measureType,
+		const byte &align, const byte &enabled, const byte &type, GUIElement *parent);
 	virtual ~GUIElement();
 
+	enum GUIElementMeasureType {
+		GUIElementMeasureType_PercentPosX = 1,
+		GUIElementMeasureType_PercentPosY = 2,
+		GUIElementMeasureType_PercentSizeX = 4,
+		GUIElementMeasureType_PercentSizeY = 8,
+		GUIElementMeasureType_ContentSizeX = 16
+	};
+
 	enum GUIElementAlign {
-		GUIElementAlign_LeftTop = 0,
-		GUIElementAlign_RightBottom = 1,
-		GUIElementAlign_Center = 2
+		GUIElementAlign_HorCenter = 1,
+		GUIElementAlign_Right = 2,
+		GUIElementAlign_VertCenter = 4,
+		GUIElementAlign_Bottom = 8,
 	};
 
 	enum GUIElementType {
@@ -38,23 +63,23 @@ public:
 		GUIElementType_Edit,
 		GUIElementType_Table,
 		GUIElementType_TableRow,
+		GUIElementType_Window,
 		GUIElementType_Last
 	};
 
-	void SetPos(const float &x, const float &y);
-	float GetPos(float *x, float *y) const;
-	float GetPosX() const;
-	float GetPosY() const;
+	PointInt *Pos();
+	PointInt *Size();
+	PointInt *PixelPos();
+	PointInt *PixelSize();
 
-	void SetSize(const float &width, const float &height);
-	float GetSize(float *width, float *height) const;
-	float GetSizeX() const;
-	float GetSizeY() const;
+	void SetId(const wstring &t);
+	wstring *GetId() const;
 
-	void SetAlign(const byte &x, const byte &y);
-	byte GetAlign(byte *x, byte *y) const;
-	byte GetAlignX() const;
-	byte GetAlignY() const;
+	void SetMeasureType(const byte &b);
+	byte GetMeasureType() const;
+
+	void SetAlign(const byte &b);
+	byte GetAlign() const;
 
 	void SetEnabled(const byte v);
 	byte GetEnabled() const;
@@ -67,35 +92,89 @@ public:
 
 	void AddChild(GUIElement *elem);
 	void RemoveChild(GUIElement *elem);
-	std::list<GUIElement *> *GetChilds() const;
+	list<GUIElement *> *GetChilds();
 
-	virtual void Render() const;
+	virtual void RenderElement(Texture *texturer, Render *renderer, const byte &hover) const;
+
+	void SetActionClick(GUIElementClickAction a);
+	void SetActionDrag(GUIElementDragAction a);
+	void SetActionKeyPress(GUIElementKeyAction a);
+
+	GUIElement *FindElement(const wstring &id);
 };
 
-class GUIElementText : GUIElement {
+class GUIElementWindow : public GUIElement {
 protected:
-	std::string *text;
+	float alpha;
+
+public:
+	GUIElementWindow();
+	GUIElementWindow(const wstring &id, const int &x, const int &y, const int &sizeX, const int &sizeY, const byte &measureType,
+		const byte &align, const byte &enabled, const float alpha, GUIElement *parent);
+	~GUIElementWindow();
+
+	void SetAlpha(const float &a);
+	float GetAlpha() const;
+
+	void RenderElement(Texture *texturer, Render *renderer, const byte &hover) const;
+};
+
+class GUIElementText : public GUIElement {
+protected:
+	wstring text;
+	int textSize;
 
 public:
 	GUIElementText();
+	GUIElementText(const wstring &id, const wstring &text, const int &textSize, const int &x, const int &y, const int &sizeX, const int &sizeY, const byte &measureType,
+		const byte &align, const byte &enabled, GUIElement *parent);
 	~GUIElementText();
 
-	void SetText(std::string &t);
-	std::string *GetText() const;
+	void SetText(const wstring &t);
+	wstring *GetText() const;
+
+	void SetTextSize(const int &i);
+	int GetTextSize() const;
+
+	void RenderElement(Texture *texturer, Render *renderer, const byte &hover) const;
 };
+
+class GUIElementButton : public GUIElementText {
+public:
+	GUIElementButton();
+	GUIElementButton(const wstring &id, const wstring &text, const int &textSize, const int &x, const int &y, const int &sizeX, const int &sizeY, const byte &measureType,
+		const byte &align, const byte &enabled, GUIElement *parent);
+	~GUIElementButton();
+
+	void RenderElement(Texture *texturer, Render *renderer, const byte &hover) const;
+};
+
 
 class GUI {
 protected:
 	Texture *texturer;
 	Render *renderer;
-	byte fontCharSize[256];
+	GUIElement *rootElement;
+	float zoom;
+
+	GUIElement *activeElement;
+	GUIElement *hoverElement;
 
 public:
 	GUI(Texture *t, Render *r);
 	~GUI();
 
-	void DrawString(const float x, const float y, const std::string &text, const float size, const float padding) const;
+	void ResizeElements(GUIElement *root);
+	void Resize();
+	void Resize(const float &f);
+	float GetZoom() const;
+
+	GUIElement *GetRootElement();
+
 	void DrawCursor(const float x, const float y, const int mode) const;
+	void RenderElements(GUIElement *root, const float &mouseX, const float &mouseY);
+
+	GUIElement *FindElement(const wstring &id);
 };
 
 #endif

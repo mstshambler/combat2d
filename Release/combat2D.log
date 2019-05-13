@@ -1,0 +1,32 @@
+﻿Сборка начата 12.05.2019 22:49:26.
+     1>Проект "F:\Development\combat2D\combat2D.vcxproj" в узле 2 (целевые объекты Build).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D _MBCS /D WIN32 /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /wd4996 /analyze- /errorReport:prompt gui.cpp
+         gui.cpp
+     1>gui.cpp(74): warning C4244: =: преобразование "float" в "int", возможна потеря данных
+     1>gui.cpp(76): warning C4244: =: преобразование "float" в "int", возможна потеря данных
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"F:\Development\combat2D\Release\combat2D.exe" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib opengl32.lib glu32.lib glew32s.lib glfw3.lib freetype.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"F:\Development\combat2D\Release\combat2D.pdb" /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"F:\Development\combat2D\Release\combat2D.lib" /MACHINE:X86 /SAFESEH Release\game.obj
+         Release\gettimeofday.obj
+         Release\gui.obj
+         Release\gui_button.obj
+         Release\gui_element.obj
+         Release\gui_text.obj
+         Release\gui_window.obj
+         Release\inventory.obj
+         Release\level.obj
+         Release\main.obj
+         Release\math.obj
+         Release\object.obj
+         Release\render.obj
+         Release\texture.obj
+     1>LINK : warning LNK4098: библиотека по умолчанию "LIBCMT" противоречит использованию других библиотек; используйте параметр /NODEFAULTLIB:library
+         Создание кода
+         Создание кода завершено
+     1>glew32s.lib(glew.obj) : warning LNK4204: в "F:\Development\combat2D\Release\vc120.pdb" отсутствуют отладочные данные для ссылок на модуль; компоновка объекта выполняется как при отсутствии отладочных данных
+         combat2D.vcxproj -> F:\Development\combat2D\Release\combat2D.exe
+     1>Сборка проекта "F:\Development\combat2D\combat2D.vcxproj" завершена (целевые объекты Build).
+
+Сборка успешно завершена.
+
+Затраченное время: 00:00:01.29

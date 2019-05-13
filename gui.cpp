@@ -9,52 +9,18 @@
 #include "gui.h"
 
 GUI::GUI(Texture *t, Render *r) {
-	FILE *fp;
-	char buf[256];
-	int i;
-
 	texturer = t;
 	renderer = r;
 
-	// load font size
-	fp = fopen("data/fontsize.cfg", "r");
-	if (fp) {
-		for (i = 0; i < 256; i++) {
-			fgets(buf, 250, fp);
-			fontCharSize[i] = (byte)atoi(buf);
-		}
-		fclose(fp);
-	} else {
-		for (i = 0; i < 256; i++) {
-			fgets(buf, 250, fp);
-			fontCharSize[i] = 16;
-		}
-		printf("Can't open fontsize.cfg\n");
-	}
+	zoom = 1.0f;
+
+	rootElement = new GUIElement(L"root", 0, 0, renderer->GetScreenWidth(), renderer->GetScreenHeight(), 0, 0, 0, GUIElement::GUIElementType_None, NULL);
+	Resize();
 }
 
 GUI::~GUI() {
-}
-
-void GUI::DrawString(const float x, const float y, const std::string &text, const float size, const float padding) const {
-	char *c;
-	float px;
-	float cell;
-
-	texturer->Bind(texturer->GetFontFixed());
-	
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	
-	cell = 16.0f / 512.0f;
-	c = (char *)text.c_str();
-	px = x;
-	
-	while(*c) {
-		renderer->DrawTexturedRect(px, y, size, size, (*c % 32) * cell, floor(*c / 32.0f) * cell, cell, cell);
-		px += (float)fontCharSize[*c] * (size / 16.0f) + padding;
-		c++;
-	}
+	if (rootElement)
+		delete rootElement;
 }
 
 void GUI::DrawCursor(const float x, const float y, const int mode) const {
@@ -72,134 +38,104 @@ void GUI::DrawCursor(const float x, const float y, const int mode) const {
 	renderer->DrawSprite(local_mousepos[0], local_mousepos[1], 32.0f, 32.0f, 0.0f, 0.0f, cell, cell, 0.0f);
 }
 
-GUIElement::GUIElement() {
-	pos[0] = pos[1] = 0.0f;
-	size[0] = size[1] = 0.0f;
-	align[0] = align[1] = GUIElementAlign_LeftTop;
-	enabled = 0;
-	parent = NULL;
-	childs = new std::list<GUIElement *>();
-	type = GUIElementType_None;
+float GUI::GetZoom() const {
+	return zoom;
 }
 
-GUIElement::~GUIElement() {
-	delete childs;
+GUIElement *GUI::GetRootElement() {
+	return rootElement;
 }
 
-void GUIElement::SetPos(const float &x, const float &y) {
-	pos[0] = x;
-	pos[1] = y;
+void GUI::Resize() {
+	renderer->InitFonts(zoom);
+	rootElement->PixelSize()->Set(renderer->GetScreenWidth(), renderer->GetScreenHeight());
+	ResizeElements(rootElement);
 }
 
-float GUIElement::GetPos(float *x, float *y) const {
-	if (x)
-		*x = pos[0];
-	if (y)
-		*y = pos[1];
+void GUI::Resize(const float &f) {
+	zoom = f;
+	Resize();
 }
 
-float GUIElement::GetPosX() const {
-	return pos[0];
+void GUI::ResizeElements(GUIElement *root) {
+	GUIElement *e;
+	list<GUIElement *>::iterator li;
+
+	for (li = root->GetChilds()->begin(); li != root->GetChilds()->end(); li++) {
+		int px, py, sx, sy;
+
+		e = *li;
+		
+		if (e->GetMeasureType() & GUIElement::GUIElementMeasureType_PercentSizeX)
+			sx = e->Size()->GetX() * root->PixelSize()->GetX() / 100;
+		else if (e->GetMeasureType() & GUIElement::GUIElementMeasureType_ContentSizeX) {
+			if (e->GetType() == GUIElement::GUIElementType_Text) {
+				GUIElementText *te = (GUIElementText *)e;
+				sx = renderer->GetStringLength(te->GetTextSize(), L"arial.ttf", *(te->GetText()));
+			} else
+				sx = 0.0f;
+		} else
+			sx = (int)( (float)e->Size()->GetX() * zoom);
+		if (e->GetMeasureType() & GUIElement::GUIElementMeasureType_PercentSizeY)
+			sy = e->Size()->GetY() * root->PixelSize()->GetY() / 100;
+		else
+			sy = (int)((float)e->Size()->GetY() * zoom);
+		e->PixelSize()->Set(sx, sy);
+
+		if (e->GetAlign() & GUIElement::GUIElementAlign_HorCenter)
+			px = root->PixelPos()->GetX() + root->PixelSize()->GetX() / 2 - sx / 2;
+		else {
+			if (e->GetMeasureType() & GUIElement::GUIElementMeasureType_PercentPosX) {
+				px = root->PixelSize()->GetX() * e->Pos()->GetX() / 100;
+			} else {
+				px = (int) ((float)e->Pos()->GetX() * zoom);
+			}
+			if (e->GetAlign() & GUIElement::GUIElementAlign_Right)
+				px = root->PixelPos()->GetX() + root->PixelSize()->GetX() - px - sx;
+			else
+				px = root->PixelPos()->GetX() + px;
+		}
+		if (e->GetAlign() & GUIElement::GUIElementAlign_VertCenter)
+			py = root->PixelPos()->GetY() + root->PixelSize()->GetY() / 2 - sy / 2;
+		else {
+			if (e->GetMeasureType() & GUIElement::GUIElementMeasureType_PercentPosY) {
+				py = root->PixelSize()->GetY() * e->Pos()->GetY() / 100;
+			} else {
+				py = (int)((float)e->Pos()->GetY() * zoom);
+			}
+			if (e->GetAlign() & GUIElement::GUIElementAlign_Bottom)
+				py = root->PixelPos()->GetY() + root->PixelSize()->GetY() - py - sy;
+			else
+				py = root->PixelPos()->GetY() + py;
+		}
+		e->PixelPos()->Set(px, py);
+
+		if (*(e->GetId()) == L"mainMenu" || *(e->GetId()) == L"mainMenuTitle2") {
+			printf("OK: %i %i %i %i!\n", px, py, sx, sy);
+		}
+
+		ResizeElements(e);
+	}	
 }
 
-float GUIElement::GetPosY() const {
-	return pos[1];
+void GUI::RenderElements(GUIElement *root, const float &mouseX, const float &mouseY) {
+	GUIElement *e;
+	list<GUIElement *>::iterator li;
+
+	for (li = root->GetChilds()->begin(); li != root->GetChilds()->end(); li++) {
+		e = *li;
+		if (e->GetEnabled()) {
+			if (mouseX >= e->PixelPos()->GetX() && mouseY >= e->PixelPos()->GetY() &&
+				mouseX <= e->PixelPos()->GetX() + e->PixelSize()->GetX() && mouseY <= e->PixelPos()->GetY() + e->PixelSize()->GetY()) {
+				hoverElement = e;
+			}
+			
+			e->RenderElement(texturer, renderer, hoverElement == e);
+			RenderElements(e, mouseX, mouseY);
+		}
+	}
 }
 
-void GUIElement::SetSize(const float &width, const float &height) {
-	size[0] = width;
-	size[1] = height;
-}
-
-float GUIElement::GetSize(float *width, float *height) const {
-	if (width)
-		*width = size[0];
-	if (height)
-		*height = size[1];
-}
-
-float GUIElement::GetSizeX() const {
-	return size[0];
-}
-
-float GUIElement::GetSizeY() const {
-	return size[1];
-}
-
-void GUIElement::SetAlign(const byte &x, const byte &y) {
-	align[0] = x;
-	align[1] = y;
-}
-
-byte GUIElement::GetAlign(byte *x, byte *y) const {
-	if (x)
-		*x = align[0];
-	if (y)
-		*y = align[1];
-}
-
-byte GUIElement::GetAlignX() const {
-	return align[0];
-}
-
-byte GUIElement::GetAlignY() const {
-	return align[1];
-}
-
-void GUIElement::SetEnabled(const byte v) {
-	enabled = v;
-}
-
-byte GUIElement::GetEnabled() const {
-	return enabled;
-}
-
-void GUIElement::SetType(const byte t) {
-	type = t;
-}
-
-byte GUIElement::GetType() const {
-	return type;
-}
-
-void GUIElement::SetParent(GUIElement *elem) {
-	parent = elem;
-}
-
-GUIElement *GUIElement::GetParent() const {
-	return parent;
-}
-
-void GUIElement::AddChild(GUIElement *elem) {
-	if (elem != NULL)
-		childs->push_back(elem);
-}
-
-void GUIElement::RemoveChild(GUIElement *elem) {
-	if (elem != NULL)
-		childs->remove(elem);
-}
-
-std::list<GUIElement *> *GUIElement::GetChilds() const {
-	return childs;
-}
-
-void GUIElement::Render() const {
-
-}
-
-GUIElementText::GUIElementText() {
-	text = new std::string();
-}
-
-GUIElementText::~GUIElementText() {
-	delete text;
-}
-
-void GUIElementText::SetText(std::string &t) {
-	*text = t;
-}
-
-std::string *GUIElementText::GetText() const {
-	return text;
+GUIElement *GUI::FindElement(const wstring &id) {
+	return rootElement->FindElement(id);
 }

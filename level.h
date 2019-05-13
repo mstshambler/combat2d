@@ -6,10 +6,16 @@
 #include "common.h"
 #include "math.h"
 
+#include "object.h"
+
+using namespace std;
+
 class LevelTile {
 protected:
 	byte floor;
 	byte flags;
+
+	Object *object;
 
 public:
 	LevelTile();
@@ -19,6 +25,9 @@ public:
 	
 	void SetFloor(const byte &f);
 	byte GetFloor() const;
+
+	void SetObject(Object *obj);
+	Object *GetObject();
 };
 
 class Level {
@@ -35,6 +44,8 @@ public:
 	ushort GetSizeX() const;
 	ushort GetSizeY() const;
 	bool IsPassable(const ushort &x, const ushort &y) const;
+	void PlaceObject(Object *obj, const ushort &x, const ushort &y);
+	void RemoveObject(Object *obj);
 };
 
 class Pathfinder {
@@ -42,7 +53,7 @@ protected:
 	Level *level;
 	uint *openCells;
 	byte *cellsStatus;
-	float *cellsDistance;
+	int *cellsDistance;
 
 	enum CellStatus {
 		CellStatus_Unknown = 0,
@@ -50,17 +61,16 @@ protected:
 		CellStatus_Closed
 	};
 
-private:
-	uint PackCoords(const ushort &x, const ushort &y) const;
-	void MakeCoords(const uint &value, ushort *x, ushort *y) const;
-
 public:
 	Pathfinder(Level *l);
 	~Pathfinder();
 
-	std::list<uint *> *GetPath(const ushort &startX, const ushort &startY, const ushort &endX, const ushort &endY, const ushort &size = 1, const int &limitDistance = -1);
+	list<uint *> *GetPath(const ushort &startX, const ushort &startY, const ushort &endX, const ushort &endY, const ushort &size = 1, const int &limitDistance = -1);
 	uint PrepareNodes(const ushort &startX, const ushort &startY, const ushort &endX, const ushort &endY, const ushort &size = 1);
 	bool CheckSize(const ushort &x, const ushort &y, const ushort &size = 1);
+
+	uint PackCoords(const ushort &x, const ushort &y) const;
+	void MakeCoords(const uint &value, ushort *x, ushort *y) const;
 };
 
 #endif
