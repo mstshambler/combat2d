@@ -81,6 +81,7 @@
     <ClCompile Include="object.cpp" />
     <ClCompile Include="render.cpp" />
     <ClCompile Include="texture.cpp" />
+    <ClCompile Include="ui_funcs.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h" />
@@ -94,6 +95,7 @@
     <ClInclude Include="render.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="texture.h" />
+    <ClInclude Include="ui_funcs.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

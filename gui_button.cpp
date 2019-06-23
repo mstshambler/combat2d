@@ -21,7 +21,7 @@ GUIElementButton::GUIElementButton(const wstring &id, const wstring &text, const
 GUIElementButton::~GUIElementButton() {
 }
 
-void GUIElementButton::RenderElement(Texture *texturer, Render *renderer, const byte &hover) const {
+void GUIElementButton::RenderElement(Texture *texturer, Render *renderer, const byte &active, const byte &hover) const {
 	float sx, sy;
 
 	sx = renderer->GetStringLength(textSize, L"arial.ttf", text);

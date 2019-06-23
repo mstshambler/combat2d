@@ -39,6 +39,6 @@ int GUIElementText::GetTextSize() const {
 	return textSize;
 }
 
-void GUIElementText::RenderElement(Texture *texturer, Render *renderer, const byte &hover) const {
+void GUIElementText::RenderElement(Texture *texturer, Render *renderer, const byte &active, const byte &hover) const {
 	renderer->DrawString(texturer, pixelPos.GetX(), renderer->GetScreenHeight() - pixelPos.GetY(), textSize, L"arial.ttf", text);
 }

@@ -94,7 +94,7 @@ public:
 	void RemoveChild(GUIElement *elem);
 	list<GUIElement *> *GetChilds();
 
-	virtual void RenderElement(Texture *texturer, Render *renderer, const byte &hover) const;
+	virtual void RenderElement(Texture *texturer, Render *renderer, const byte &active, const byte &hover) const;
 
 	void SetActionClick(GUIElementClickAction a);
 	void SetActionDrag(GUIElementDragAction a);
@@ -119,7 +119,7 @@ public:
 	void SetAlpha(const float &a);
 	float GetAlpha() const;
 
-	void RenderElement(Texture *texturer, Render *renderer, const byte &hover) const;
+	void RenderElement(Texture *texturer, Render *renderer, const byte &active, const byte &hover) const;
 };
 
 class GUIElementText : public GUIElement {
@@ -139,7 +139,7 @@ public:
 	void SetTextSize(const int &i);
 	int GetTextSize() const;
 
-	void RenderElement(Texture *texturer, Render *renderer, const byte &hover) const;
+	void RenderElement(Texture *texturer, Render *renderer, const byte &active, const byte &hover) const;
 };
 
 class GUIElementButton : public GUIElementText {
@@ -149,7 +149,7 @@ public:
 		const byte &align, const byte &enabled, GUIElement *parent);
 	~GUIElementButton();
 
-	void RenderElement(Texture *texturer, Render *renderer, const byte &hover) const;
+	void RenderElement(Texture *texturer, Render *renderer, const byte &active, const byte &hover) const;
 };
 
 

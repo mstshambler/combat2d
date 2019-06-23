@@ -115,7 +115,7 @@ list<GUIElement *> *GUIElement::GetChilds() {
 	return childs;
 }
 
-void GUIElement::RenderElement(Texture *texturer, Render *renderer, const byte &hover) const {
+void GUIElement::RenderElement(Texture *texturer, Render *renderer, const byte &active, const byte &hover) const {
 
 }
 

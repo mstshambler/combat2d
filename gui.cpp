@@ -123,7 +123,7 @@ void GUI::RenderElements(GUIElement *root, const float &mouseX, const float &mou
 	for (li = root->GetChilds()->begin(); li != root->GetChilds()->end(); li++) {
 		e = *li;
 		if (e->GetEnabled()) {
-			e->RenderElement(texturer, renderer, hoverElement == e);
+			e->RenderElement(texturer, renderer, activeElement == e, hoverElement == e);
 			RenderElements(e, mouseX, mouseY);
 		}
 	}
