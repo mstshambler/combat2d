@@ -33,6 +33,10 @@ GUIElement::GUIElement(const wstring &id, const int &x, const int &y, const int 
 	this->parent = parent;
 	if (parent)
 		parent->AddChild(this);
+
+	actionClick = NULL;
+	actionDrag = NULL;
+	actionKeyPress = NULL;
 }
 
 GUIElement::~GUIElement() {
@@ -119,12 +123,22 @@ void GUIElement::SetActionClick(GUIElementClickAction a) {
 	actionClick = a;
 }
 
+void GUIElement::DoActionClick(const int &x, const int &y) {
+	if (actionClick != NULL)
+		(*actionClick)(this, x - pixelPos.GetX(), y - pixelPos.GetY());
+}
+
 void GUIElement::SetActionDrag(GUIElementDragAction a) {
 	actionDrag = a;
 }
 
 void GUIElement::SetActionKeyPress(GUIElementKeyAction a) {
 	actionKeyPress = a;
+}
+
+void GUIElement::DoActionKeyPress(const int &key, const int &scancode, const int &mod) {
+	if (actionKeyPress != NULL)
+		(*actionKeyPress)(this, key, scancode, mod);
 }
 
 void GUIElement::SetId(const wstring &t) {

@@ -30,9 +30,11 @@
 #include "texture.h"
 #include "gui.h"
 #include "math.h"
-#include "list.h"
 
 #include "level.h"
+#include "game.h"
+
+#include "ui_funcs.h"
 
 using namespace std;
 
@@ -47,6 +49,7 @@ float global_mousepos[2];
 Render *renderer;
 Texture *texturer;
 GUI *gui;
+Game *game;
 
 struct timeval tick_otime, tick_ntime, tick_diff, tick_gameStart;
 
@@ -78,6 +81,23 @@ static void cursor_position_callback(GLFWwindow* window, double x, double y) {
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
 	global_mouse[button] = action == GLFW_PRESS ? true : false;
+
+	if (button == 0) {
+		GUIElement *clickElement = NULL;
+
+		if (action == GLFW_PRESS) {
+			gui->SetActiveElement(NULL);
+			gui->SetHalfActiveElement(gui->FindElementByCoords(gui->GetRootElement(), global_mousepos[0], global_mousepos[1]));
+		} else {
+			clickElement = gui->FindElementByCoords(gui->GetRootElement(), global_mousepos[0], global_mousepos[1]);
+			if (clickElement != NULL && clickElement == gui->GetHalfActiveElement()) {
+				gui->SetActiveElement(clickElement);
+				gui->SetHalfActiveElement(NULL);
+				clickElement->DoActionClick(global_mousepos[0], global_mousepos[1]);
+			}
+		}
+
+	}
 
 //	printf("Mouse: %i %i %i\n", button, action, mods);
 }
@@ -155,6 +175,8 @@ int main(void) {
 
 	texturer = new Texture();
 	texturer->LoadTexturesList();
+
+	game = new Game();
 
 	gui = new GUI(texturer, renderer);
 
@@ -283,12 +305,14 @@ int main(void) {
 		wnd1 = new GUIElementWindow(L"mainMenu", 0, 0, 50, 50, GUIElement::GUIElementMeasureType_PercentSizeX | GUIElement::GUIElementMeasureType_PercentSizeY,
 			GUIElement::GUIElementAlign_HorCenter | GUIElement::GUIElementAlign_VertCenter, 1, 0.8f, gui->GetRootElement());
 
-		txt1 = new GUIElementText(L"mainMenuTitle", L"Main Menu", Render::FontSize_Huge, 0, 0, 0.0f, 100.0f, GUIElement::GUIElementMeasureType_PercentSizeY | GUIElement::GUIElementMeasureType_ContentSizeX,
+		txt1 = new GUIElementText(L"mainMenuTitle", L"Main Menu", Render::FontSize_Huge, 0, 0, 0.0f, 100.0f, GUIElement::GUIElementMeasureType_ContentSizeX,
 			GUIElement::GUIElementAlign_HorCenter, 1, (GUIElement *)wnd1);
 
 		btn1 = new GUIElementButton(L"mainMenuExit", L"EXIT", Render::FontSize_Medium, 0.0f, 10.0f, 50.0f, 12.5f,
 			GUIElement::GUIElementMeasureType_PercentSizeY | GUIElement::GUIElementMeasureType_PercentSizeX | GUIElement::GUIElementMeasureType_PercentPosY,
 			GUIElement::GUIElementAlign_HorCenter | GUIElement::GUIElementAlign_Bottom, 1, (GUIElement *)wnd1);
+
+		btn1->SetActionClick(&GameExitButtonClick);
 	}
 
 	gui->ResizeElements(gui->GetRootElement());
@@ -315,6 +339,8 @@ int main(void) {
 
 		texturer->Bind(texturer->GetWhite());
 		renderer->DrawRect(0.0f, renderer->GetScreenHeight(), renderer->GetScreenWidth(), renderer->GetScreenHeight(), 1.0f, 1.0f, 0.0f, 1.0f);
+		// TODO: combine functions into one?
+		gui->SetHoverElement(gui->FindElementByCoords(gui->GetRootElement(), global_mousepos[0], global_mousepos[1]));
 		gui->RenderElements(gui->GetRootElement(), global_mousepos[0], global_mousepos[1]);
 		/*
 		//renderer->DrawRect(100.0f, 668.0f, 100.0f, 32.0f, 1.0f, 0.0f, 0.0f, 1.0f);

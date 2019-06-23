@@ -7,9 +7,9 @@
 
 using namespace std;
 
-typedef int(*GUIElementClickAction)(int, int);
-typedef int(*GUIElementDragAction)(int, int, int, int);
-typedef int(*GUIElementKeyAction)(int, int, int);
+typedef int(*GUIElementClickAction)(void *, const int&, const int&);
+typedef int(*GUIElementDragAction)(void *, int, int, int, int);
+typedef int(*GUIElementKeyAction)(void *, const int&, const int&, const int&);
 
 class GUIElement {
 protected:
@@ -100,6 +100,9 @@ public:
 	void SetActionDrag(GUIElementDragAction a);
 	void SetActionKeyPress(GUIElementKeyAction a);
 
+	virtual void DoActionClick(const int &x, const int &y);
+	virtual void DoActionKeyPress(const int &key, const int &scancode, const int &mod);
+
 	GUIElement *FindElement(const wstring &id);
 };
 
@@ -157,8 +160,9 @@ protected:
 	GUIElement *rootElement;
 	float zoom;
 
-	GUIElement *activeElement;
-	GUIElement *hoverElement;
+	GUIElement *activeElement; // an element we clicked on (left mouse button ON and OFF)
+	GUIElement *halfActiveElement; // an element we half-clicked on (left mouse button ON)
+	GUIElement *hoverElement; // an element we keep our mouse cursor over
 
 public:
 	GUI(Texture *t, Render *r);
@@ -173,8 +177,16 @@ public:
 
 	void DrawCursor(const float x, const float y, const int mode) const;
 	void RenderElements(GUIElement *root, const float &mouseX, const float &mouseY);
+	GUIElement *FindElementByCoords(GUIElement *root, const float &mouseX, const float &mouseY);
 
 	GUIElement *FindElement(const wstring &id);
+
+	void SetHoverElement(GUIElement *e);
+	GUIElement *GetHoverElement();
+	void SetActiveElement(GUIElement *e);
+	GUIElement *GetActiveElement();
+	void SetHalfActiveElement(GUIElement *e);
+	GUIElement *GetHalfActiveElement();
 };
 
 #endif

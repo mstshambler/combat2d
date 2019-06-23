@@ -15,6 +15,7 @@ GUI::GUI(Texture *t, Render *r) {
 	zoom = 1.0f;
 
 	rootElement = new GUIElement(L"root", 0, 0, renderer->GetScreenWidth(), renderer->GetScreenHeight(), 0, 0, 0, GUIElement::GUIElementType_None, NULL);
+	activeElement = halfActiveElement = hoverElement = NULL;
 	Resize();
 }
 
@@ -110,10 +111,6 @@ void GUI::ResizeElements(GUIElement *root) {
 		}
 		e->PixelPos()->Set(px, py);
 
-		if (*(e->GetId()) == L"mainMenu" || *(e->GetId()) == L"mainMenuTitle2") {
-			printf("OK: %i %i %i %i!\n", px, py, sx, sy);
-		}
-
 		ResizeElements(e);
 	}	
 }
@@ -121,21 +118,62 @@ void GUI::ResizeElements(GUIElement *root) {
 void GUI::RenderElements(GUIElement *root, const float &mouseX, const float &mouseY) {
 	GUIElement *e;
 	list<GUIElement *>::iterator li;
-
+	
+	li = root->GetChilds()->begin();
 	for (li = root->GetChilds()->begin(); li != root->GetChilds()->end(); li++) {
 		e = *li;
 		if (e->GetEnabled()) {
-			if (mouseX >= e->PixelPos()->GetX() && mouseY >= e->PixelPos()->GetY() &&
-				mouseX <= e->PixelPos()->GetX() + e->PixelSize()->GetX() && mouseY <= e->PixelPos()->GetY() + e->PixelSize()->GetY()) {
-				hoverElement = e;
-			}
-			
 			e->RenderElement(texturer, renderer, hoverElement == e);
 			RenderElements(e, mouseX, mouseY);
 		}
 	}
 }
 
+GUIElement *GUI::FindElementByCoords(GUIElement *root, const float &mouseX, const float &mouseY) {
+	GUIElement *e;
+	list<GUIElement *>::iterator li;
+	GUIElement *foundElement = NULL;
+	
+	for (li = root->GetChilds()->begin(); li != root->GetChilds()->end(); li++) {
+		e = *li;
+		if (e->GetEnabled()) {
+			GUIElement *subFoundElement = NULL;
+			subFoundElement = FindElementByCoords(e, mouseX, mouseY);
+			if (subFoundElement)
+				foundElement = subFoundElement;
+			else if (mouseX >= e->PixelPos()->GetX() && mouseY >= e->PixelPos()->GetY() &&
+				mouseX <= e->PixelPos()->GetX() + e->PixelSize()->GetX() && mouseY <= e->PixelPos()->GetY() + e->PixelSize()->GetY()) {
+				foundElement = e;
+			}
+		}
+	}
+	return foundElement;
+}
+
 GUIElement *GUI::FindElement(const wstring &id) {
 	return rootElement->FindElement(id);
+}
+
+void GUI::SetHoverElement(GUIElement *e) {
+	hoverElement = e;
+}
+
+GUIElement *GUI::GetHoverElement() {
+	return hoverElement;
+}
+
+void GUI::SetActiveElement(GUIElement *e) {
+	activeElement = e;
+}
+
+GUIElement *GUI::GetActiveElement() {
+	return activeElement;
+}
+
+void GUI::SetHalfActiveElement(GUIElement *e) {
+	halfActiveElement = e;
+}
+
+GUIElement *GUI::GetHalfActiveElement() {
+	return halfActiveElement;
 }
