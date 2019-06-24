@@ -7,9 +7,9 @@
 
 using namespace std;
 
-typedef int(*GUIElementClickAction)(void *, const int&, const int&);
-typedef int(*GUIElementDragAction)(void *, int, int, int, int);
-typedef int(*GUIElementKeyAction)(void *, const int&, const int&, const int&);
+typedef byte(*GUIElementClickAction)(void *, const int&, const int&);
+typedef byte(*GUIElementDragAction)(void *, int, int, int, int);
+typedef byte(*GUIElementKeyAction)(void *, const int&, const int&, const int&);
 
 class GUIElement {
 protected:
@@ -24,7 +24,7 @@ protected:
 	list<GUIElement *> *childs;
 	byte type;
 	Render *renderer;
-	Texture *texturer;
+	Texturer *texturer;
 
 	GUIElementClickAction actionClick;
 	GUIElementDragAction actionDrag;
@@ -33,8 +33,8 @@ protected:
 	wstring id;
 
 public:
-	GUIElement();
-	GUIElement(const wstring &id, const int &x, const int &y, const int &sizeX, const int &sizeY, const byte &measureType,
+	GUIElement(Texturer *texturer, Render *renderer);
+	GUIElement(Texturer *texturer, Render *renderer, const wstring &id, const int &x, const int &y, const int &sizeX, const int &sizeY, const byte &measureType,
 		const byte &align, const byte &enabled, const byte &type, GUIElement *parent);
 	virtual ~GUIElement();
 
@@ -69,6 +69,9 @@ public:
 		GUIElementType_Last
 	};
 
+	Render *GetRenderer();
+	Texturer *GetTexturer();
+
 	PointInt *Pos();
 	PointInt *Size();
 	PointInt *PixelPos();
@@ -96,16 +99,18 @@ public:
 	void RemoveChild(GUIElement *elem);
 	list<GUIElement *> *GetChilds();
 
-	virtual void RenderElement(Texture *texturer, Render *renderer, const byte &active, const byte &hover) const;
+	virtual void RenderElement(const byte &active, const byte &hover) const;
 
 	void SetActionClick(GUIElementClickAction a);
 	void SetActionDrag(GUIElementDragAction a);
 	void SetActionKeyPress(GUIElementKeyAction a);
 
-	virtual void DoActionClick(const int &x, const int &y);
-	virtual void DoActionKeyPress(const int &key, const int &scancode, const int &mod);
+	virtual byte DoActionHold(const int &x, const int &y);
+	virtual byte DoActionStopHold(const int &x, const int &y);
+	virtual byte DoActionClick(const int &x, const int &y);
+	virtual byte DoActionKeyPress(const int &key, const int &scancode, const int &mod);
 
-	virtual void UpdateSize(Render *renderer);
+	virtual void UpdateSize();
 
 	GUIElement *FindElement(const wstring &id);
 };
@@ -115,15 +120,15 @@ protected:
 	float alpha;
 
 public:
-	GUIElementWindow();
-	GUIElementWindow(const wstring &id, const int &x, const int &y, const int &sizeX, const int &sizeY, const byte &measureType,
+	GUIElementWindow(Texturer *texturer, Render *renderer);
+	GUIElementWindow(Texturer *texturer, Render *renderer, const wstring &id, const int &x, const int &y, const int &sizeX, const int &sizeY, const byte &measureType,
 		const byte &align, const byte &enabled, const float alpha, GUIElement *parent);
 	~GUIElementWindow();
 
 	void SetAlpha(const float &a);
 	float GetAlpha() const;
 
-	void RenderElement(Texture *texturer, Render *renderer, const byte &active, const byte &hover) const;
+	void RenderElement(const byte &active, const byte &hover) const;
 };
 
 class GUIElementText : public GUIElement {
@@ -132,8 +137,8 @@ protected:
 	int textSize;
 
 public:
-	GUIElementText();
-	GUIElementText(const wstring &id, const wstring &text, const int &textSize, const int &x, const int &y, const int &sizeX, const int &sizeY, const byte &measureType,
+	GUIElementText(Texturer *texturer, Render *renderer);
+	GUIElementText(Texturer *texturer, Render *renderer, const wstring &id, const wstring &text, const int &textSize, const int &x, const int &y, const int &sizeX, const int &sizeY, const byte &measureType,
 		const byte &align, const byte &enabled, GUIElement *parent);
 	~GUIElementText();
 
@@ -143,44 +148,50 @@ public:
 	void SetTextSize(const int &i);
 	int GetTextSize() const;
 
-	void RenderElement(Texture *texturer, Render *renderer, const byte &active, const byte &hover) const;
+	void RenderElement(const byte &active, const byte &hover) const;
 };
 
 class GUIElementMultilineText : public GUIElementText {
 protected:
 	float scroll;
 	float maxScroll;
+	byte scrollHit;
 
 public:
-	GUIElementMultilineText();
-	GUIElementMultilineText(const wstring &id, const wstring &text, const int &textSize, const int &x, const int &y, const int &sizeX, const int &sizeY, const byte &measureType,
+	GUIElementMultilineText(Texturer *texturer, Render *renderer);
+	GUIElementMultilineText(Texturer *texturer, Render *renderer, const wstring &id, const wstring &text, const int &textSize, const int &x, const int &y, const int &sizeX, const int &sizeY, const byte &measureType,
 		const byte &align, const byte &enabled, GUIElement *parent);
 	~GUIElementMultilineText();
+
+	virtual void SetText(const wstring &t);
 
 	void SetScroll(const float &f);
 	float GetScroll() const;
 	void SetMaxScroll(const float &f);
 	float GetMaxScroll() const;
 
-	void RenderElement(Texture *texturer, Render *renderer, const byte &active, const byte &hover) const;
+	void RenderElement(const byte &active, const byte &hover) const;
 
-	void UpdateSize(Render *renderer);
+	void UpdateSize();
+
+	byte DoActionHold(const int &x, const int &y);
+	byte DoActionStopHold(const int &x, const int &y);
 };
 
 class GUIElementButton : public GUIElementText {
 public:
-	GUIElementButton();
-	GUIElementButton(const wstring &id, const wstring &text, const int &textSize, const int &x, const int &y, const int &sizeX, const int &sizeY, const byte &measureType,
+	GUIElementButton(Texturer *texturer, Render *renderer);
+	GUIElementButton(Texturer *texturer, Render *renderer, const wstring &id, const wstring &text, const int &textSize, const int &x, const int &y, const int &sizeX, const int &sizeY, const byte &measureType,
 		const byte &align, const byte &enabled, GUIElement *parent);
 	~GUIElementButton();
 
-	void RenderElement(Texture *texturer, Render *renderer, const byte &active, const byte &hover) const;
+	void RenderElement(const byte &active, const byte &hover) const;
 };
 
 
 class GUI {
 protected:
-	Texture *texturer;
+	Texturer *texturer;
 	Render *renderer;
 	GUIElement *rootElement;
 	float zoom;
@@ -190,7 +201,7 @@ protected:
 	GUIElement *hoverElement; // an element we keep our mouse cursor over
 
 public:
-	GUI(Texture *t, Render *r);
+	GUI(Texturer *t, Render *r);
 	~GUI();
 
 	void ResizeElements(GUIElement *root);

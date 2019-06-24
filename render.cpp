@@ -62,8 +62,6 @@ RenderFont::RenderFont(const wstring &name, const int &size, const int &pixelSiz
 	this->size = size;
 	this->pixelSize = pixelSize;
 
-	printf("PS: %i\n", pixelSize);
-
 	pathToFont = "data/fonts/";
 	{
 		char buf[256];
@@ -513,9 +511,6 @@ void Render::InitFonts(const float &zoom) {
 
 	fontScale = (float)(screenHeight / 1080.0f) * zoom;
 
-	printf("%i %.3f %.3f\n", screenHeight, zoom, fontScale);
-
-	printf("InitFonts!");
 	if (FT_Init_FreeType(&ftLibrary)) {
 		printf("FreeType: init error");
 		return;
@@ -555,7 +550,7 @@ RenderFont *Render::FindFont(const int &size, const wstring &fontName) const {
 	return font;
 }
 
-void Render::DrawString(Texture *texturer, const float &x, const float &y, const int &size, const wstring &fontName, const wstring &text) const {
+void Render::DrawString(Texturer *texturer, const float &x, const float &y, const int &size, const wstring &fontName, const wstring &text) const {
 	RenderFont *font;
 
 	font = FindFont(size, fontName);
@@ -593,7 +588,7 @@ void Render::DrawString(Texture *texturer, const float &x, const float &y, const
 	}
 }
 
-void Render::DrawStringBox(Texture *texturer, const float &boxX, const float &boxY, const float &boxSizeX, const float &boxSizeY,
+void Render::DrawStringBox(Texturer *texturer, const float &boxX, const float &boxY, const float &boxSizeX, const float &boxSizeY,
 	const float &x, const float &y, const int &size, const wstring &fontName, const wstring &text) const {
 	RenderFont *font;
 

@@ -7,10 +7,10 @@
 
 using namespace std;
 
-class Texture {
+class Texturer {
 public:
-	Texture();
-	~Texture();
+	Texturer();
+	~Texturer();
 
 	void LoadTexturesList();
 	int LoadTexture(const wstring &name, GLuint &id);

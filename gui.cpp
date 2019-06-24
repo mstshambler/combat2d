@@ -8,13 +8,13 @@
 
 #include "gui.h"
 
-GUI::GUI(Texture *t, Render *r) {
+GUI::GUI(Texturer *t, Render *r) {
 	texturer = t;
 	renderer = r;
 
 	zoom = 1.0f;
 
-	rootElement = new GUIElement(L"root", 0, 0, renderer->GetScreenWidth(), renderer->GetScreenHeight(), 0, 0, 0, GUIElement::GUIElementType_None, NULL);
+	rootElement = new GUIElement(t, r, L"root", 0, 0, renderer->GetScreenWidth(), renderer->GetScreenHeight(), 0, 0, 0, GUIElement::GUIElementType_None, NULL);
 	activeElement = halfActiveElement = hoverElement = NULL;
 	Resize();
 }
@@ -116,7 +116,7 @@ void GUI::ResizeElements(GUIElement *root) {
 				py = root->PixelPos()->GetY() + py;
 		}
 		e->PixelPos()->Set(px, py);
-		e->UpdateSize(renderer);
+		e->UpdateSize();
 
 		ResizeElements(e);
 	}	
@@ -130,7 +130,7 @@ void GUI::RenderElements(GUIElement *root, const float &mouseX, const float &mou
 	for (li = root->GetChilds()->begin(); li != root->GetChilds()->end(); li++) {
 		e = *li;
 		if (e->GetEnabled()) {
-			e->RenderElement(texturer, renderer, activeElement == e, hoverElement == e);
+			e->RenderElement(activeElement == e, hoverElement == e);
 			RenderElements(e, mouseX, mouseY);
 		}
 	}

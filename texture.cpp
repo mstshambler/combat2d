@@ -5,14 +5,14 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-Texture::Texture() {
+Texturer::Texturer() {
 	texnum_current = 0;
 }
 
-Texture::~Texture() {
+Texturer::~Texturer() {
 }
 
-void Texture::Bind(GLuint texnum) {
+void Texturer::Bind(GLuint texnum) {
 	if (texnum_current == texnum)
 		return;
 
@@ -20,7 +20,7 @@ void Texture::Bind(GLuint texnum) {
 	glBindTexture(GL_TEXTURE_2D, texnum);
 }
 
-int Texture::LoadTexture(const wstring &name, GLuint &id) {
+int Texturer::LoadTexture(const wstring &name, GLuint &id) {
 	int width;
 	int height;
 	int channels;
@@ -54,7 +54,7 @@ int Texture::LoadTexture(const wstring &name, GLuint &id) {
 	return ok;
 }
 
-void Texture::LoadTexturesList() {
+void Texturer::LoadTexturesList() {
 	if (LoadTexture(L"data/textures/gui/white.tga", texnum_white) == 0)
 		printf("Failed to load white texture\n");
 	if (LoadTexture(L"data/textures/gui/cursors.tga", texnum_GUICursors) == 0)
@@ -72,26 +72,26 @@ void Texture::LoadTexturesList() {
 		printf("Failed to load test char\n");
 }
 
-GLuint Texture::GetGUICursors() const {
+GLuint Texturer::GetGUICursors() const {
 	return texnum_GUICursors;
 }
 
-GLuint Texture::GetGUIInterface() const {
+GLuint Texturer::GetGUIInterface() const {
 	return texnum_GUIInterface;
 }
 
-GLuint Texture::GetWhite() const {
+GLuint Texturer::GetWhite() const {
 	return texnum_white;
 }
 
-GLuint Texture::GetTest() const {
+GLuint Texturer::GetTest() const {
 	return texnum_test;
 }
 
-GLuint Texture::GetTile() const {
+GLuint Texturer::GetTile() const {
 	return texnum_tile;
 }
 
-GLuint Texture::GetTestChar() const {
+GLuint Texturer::GetTestChar() const {
 	return texnum_testChar;
 }

@@ -47,7 +47,7 @@ int global_mouse[GLFW_MOUSE_BUTTON_LAST];
 float global_mousepos[2];
 
 Render *renderer;
-Texture *texturer;
+Texturer *texturer;
 GUI *gui;
 Game *game;
 
@@ -77,6 +77,18 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 static void cursor_position_callback(GLFWwindow* window, double x, double y) {
 	global_mousepos[0] = (float)x;
 	global_mousepos[1] = (float)y;
+
+	if (global_mouse[0]) {
+		byte res;
+		if (gui->GetHalfActiveElement()) {
+			res = gui->GetHalfActiveElement()->DoActionHold((int)global_mousepos[0], (int)global_mousepos[1]);
+		}
+
+		// TODO: No GUI elements, do something else...
+		if (!res) {
+
+		}
+	}
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
@@ -84,17 +96,27 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 
 	if (button == 0) {
 		GUIElement *clickElement = NULL;
+		byte res;
 
 		if (action == GLFW_PRESS) {
 			gui->SetActiveElement(NULL);
-			gui->SetHalfActiveElement(gui->FindElementByCoords(gui->GetRootElement(), global_mousepos[0], global_mousepos[1]));
+			clickElement = gui->FindElementByCoords(gui->GetRootElement(), global_mousepos[0], global_mousepos[1]);
+			gui->SetHalfActiveElement(clickElement);
+			if (clickElement)
+				res = clickElement->DoActionHold((int)global_mousepos[0], (int)global_mousepos[1]);
 		} else {
 			clickElement = gui->FindElementByCoords(gui->GetRootElement(), global_mousepos[0], global_mousepos[1]);
-			if (clickElement != NULL && clickElement == gui->GetHalfActiveElement()) {
+			if (gui->GetHalfActiveElement())
+				gui->GetHalfActiveElement()->DoActionStopHold((int)global_mousepos[0], (int)global_mousepos[1]);
+			if (clickElement && clickElement == gui->GetHalfActiveElement()) {
 				gui->SetActiveElement(clickElement);
 				gui->SetHalfActiveElement(NULL);
-				clickElement->DoActionClick((int)global_mousepos[0], (int)global_mousepos[1]);
+				res = clickElement->DoActionClick((int)global_mousepos[0], (int)global_mousepos[1]);
 			}
+		}
+		// TODO: No GUI elements, do something else...
+		if (!res) {
+
 		}
 
 	}
@@ -173,7 +195,7 @@ int main(void) {
 	renderer = new Render();
 	renderer->Init(1920, 1080);
 
-	texturer = new Texture();
+	texturer = new Texturer();
 	texturer->LoadTexturesList();
 
 	game = new Game();
@@ -303,13 +325,13 @@ int main(void) {
 		GUIElementButton *btn1;
 		GUIElementMultilineText *mt1;
 
-		wnd1 = new GUIElementWindow(L"mainMenu", 0, 0, 50, 50, GUIElement::GUIElementMeasureType_PercentSizeX | GUIElement::GUIElementMeasureType_PercentSizeY,
+		wnd1 = new GUIElementWindow(texturer, renderer, L"mainMenu", 0, 0, 50, 50, GUIElement::GUIElementMeasureType_PercentSizeX | GUIElement::GUIElementMeasureType_PercentSizeY,
 			GUIElement::GUIElementAlign_HorCenter | GUIElement::GUIElementAlign_VertCenter, 1, 0.8f, gui->GetRootElement());
 
-		txt1 = new GUIElementText(L"mainMenuTitle", L"Main Menu", Render::FontSize_Huge, 0, 0, 0, 0, GUIElement::GUIElementMeasureType_ContentSizeX | GUIElement::GUIElementMeasureType_ContentSizeY,
+		txt1 = new GUIElementText(texturer, renderer, L"mainMenuTitle", L"Main Menu", Render::FontSize_Huge, 0, 0, 0, 0, GUIElement::GUIElementMeasureType_ContentSizeX | GUIElement::GUIElementMeasureType_ContentSizeY,
 			GUIElement::GUIElementAlign_HorCenter, 1, (GUIElement *)wnd1);
 
-		mt1 = new GUIElementMultilineText(L"mainMenuMultilineText",
+		mt1 = new GUIElementMultilineText(texturer, renderer, L"mainMenuMultilineText",
 			L"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\
 			Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\
 			Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\
@@ -320,7 +342,7 @@ int main(void) {
 			GUIElement::GUIElementMeasureType_PercentPosX | GUIElement::GUIElementMeasureType_PercentPosY | GUIElement::GUIElementMeasureType_PercentSizeX | GUIElement::GUIElementMeasureType_PercentSizeY,
 			0, 1, (GUIElement *)wnd1);
 
-		btn1 = new GUIElementButton(L"mainMenuExit", L"EXIT", Render::FontSize_Medium, 0, 0, 50, 12,
+		btn1 = new GUIElementButton(texturer, renderer, L"mainMenuExit", L"EXIT", Render::FontSize_Medium, 0, 0, 50, 12,
 			GUIElement::GUIElementMeasureType_PercentSizeY | GUIElement::GUIElementMeasureType_PercentSizeX | GUIElement::GUIElementMeasureType_PercentPosY,
 			GUIElement::GUIElementAlign_HorCenter | GUIElement::GUIElementAlign_Bottom, 1, (GUIElement *)wnd1);
 		btn1->SetActionClick(&GameExitButtonClick);
@@ -328,7 +350,7 @@ int main(void) {
 
 	gui->ResizeElements(gui->GetRootElement());
 
-	while ( !glfwWindowShouldClose(window) ) {
+	while ( !glfwWindowShouldClose(window) && !game->GetExitGame()) {
 		float ox, oy, oz;
 
 		glfwPollEvents();

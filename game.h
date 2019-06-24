@@ -14,9 +14,15 @@
 using namespace std;
 
 class Game {
+protected:
+	byte exitGame;
+
 public:
 	Game();
 	~Game();
+
+	void SetExitGame(const byte &b);
+	byte GetExitGame() const;
 };
 
 #endif

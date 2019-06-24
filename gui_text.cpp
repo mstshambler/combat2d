@@ -8,13 +8,13 @@
 
 #include "gui.h"
 
-GUIElementText::GUIElementText() : GUIElement() {
+GUIElementText::GUIElementText(Texturer *texturer, Render *renderer) : GUIElement(texturer, renderer) {
 	text = L"";
 	textSize = Render::FontSize_Small;
 }
 
-GUIElementText::GUIElementText(const wstring &id, const wstring &text, const int &textSize, const int &x, const int &y, const int &sizeX, const int &sizeY, const byte &measureType,
-	const byte &align, const byte &enabled, GUIElement *parent) : GUIElement(id, x, y, sizeX, sizeY, measureType, align, enabled, GUIElement::GUIElementType_Text, parent) {
+GUIElementText::GUIElementText(Texturer *texturer, Render *renderer, const wstring &id, const wstring &text, const int &textSize, const int &x, const int &y, const int &sizeX, const int &sizeY, const byte &measureType,
+	const byte &align, const byte &enabled, GUIElement *parent) : GUIElement(texturer, renderer, id, x, y, sizeX, sizeY, measureType, align, enabled, GUIElement::GUIElementType_Text, parent) {
 	this->text = text;
 	this->textSize = textSize;
 }
@@ -39,6 +39,6 @@ int GUIElementText::GetTextSize() const {
 	return textSize;
 }
 
-void GUIElementText::RenderElement(Texture *texturer, Render *renderer, const byte &active, const byte &hover) const {
+void GUIElementText::RenderElement(const byte &active, const byte &hover) const {
 	renderer->DrawString(texturer, (float)pixelPos.GetX(), (float)(renderer->GetScreenHeight() - pixelPos.GetY()), textSize, L"arial.ttf", text);
 }

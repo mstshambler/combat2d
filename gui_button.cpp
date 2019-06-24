@@ -8,12 +8,12 @@
 
 #include "gui.h"
 
-GUIElementButton::GUIElementButton() : GUIElementText() {
+GUIElementButton::GUIElementButton(Texturer *texturer, Render *renderer) : GUIElementText(texturer, renderer) {
 	type = GUIElement::GUIElementType_Button;
 }
 
-GUIElementButton::GUIElementButton(const wstring &id, const wstring &text, const int &textSize, const int &x, const int &y, const int &sizeX, const int &sizeY, const byte &measureType,
-	const byte &align, const byte &enabled, GUIElement *parent) : GUIElementText(id, text, textSize, x, y, sizeX, sizeY, measureType, align, enabled, parent) {
+GUIElementButton::GUIElementButton(Texturer *texturer, Render *renderer, const wstring &id, const wstring &text, const int &textSize, const int &x, const int &y, const int &sizeX, const int &sizeY, const byte &measureType,
+	const byte &align, const byte &enabled, GUIElement *parent) : GUIElementText(texturer, renderer, id, text, textSize, x, y, sizeX, sizeY, measureType, align, enabled, parent) {
 	type = GUIElement::GUIElementType_Button;
 }
 
@@ -21,7 +21,7 @@ GUIElementButton::GUIElementButton(const wstring &id, const wstring &text, const
 GUIElementButton::~GUIElementButton() {
 }
 
-void GUIElementButton::RenderElement(Texture *texturer, Render *renderer, const byte &active, const byte &hover) const {
+void GUIElementButton::RenderElement(const byte &active, const byte &hover) const {
 	float sx, sy;
 
 	sx = renderer->GetStringLength(textSize, L"arial.ttf", text);

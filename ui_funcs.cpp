@@ -18,21 +18,7 @@ using namespace std;
 
 extern Game *game;
 
-int GameExitButtonClick(void *element, const int &x, const int &y) {
-	GUIElementButton *e = (GUIElementButton *)element;
-
-	if (e->GetParent()) {
-		GUIElementMultilineText *mt;
-		mt = (GUIElementMultilineText *)e->GetParent()->FindElement(L"mainMenuMultilineText");
-
-		if (mt) {
-			mt->SetScroll(mt->GetScroll() + 10.0f);
-			if (mt->GetScroll() > mt->GetMaxScroll())
-				mt->SetScroll(mt->GetMaxScroll());
-		}
-	}
-
-	printf("Exit click: %i %i\n", x, y);
-	wprintf(L"Elem: %s %s\n", e->GetId()->c_str(), e->GetText()->c_str());
+byte GameExitButtonClick(void *element, const int &x, const int &y) {
+	game->SetExitGame(1);
 	return 1;
 }
