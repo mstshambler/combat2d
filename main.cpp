@@ -93,7 +93,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 			if (clickElement != NULL && clickElement == gui->GetHalfActiveElement()) {
 				gui->SetActiveElement(clickElement);
 				gui->SetHalfActiveElement(NULL);
-				clickElement->DoActionClick(global_mousepos[0], global_mousepos[1]);
+				clickElement->DoActionClick((int)global_mousepos[0], (int)global_mousepos[1]);
 			}
 		}
 
@@ -301,17 +301,28 @@ int main(void) {
 		GUIElementWindow *wnd1;
 		GUIElementText *txt1;
 		GUIElementButton *btn1;
+		GUIElementMultilineText *mt1;
 
 		wnd1 = new GUIElementWindow(L"mainMenu", 0, 0, 50, 50, GUIElement::GUIElementMeasureType_PercentSizeX | GUIElement::GUIElementMeasureType_PercentSizeY,
 			GUIElement::GUIElementAlign_HorCenter | GUIElement::GUIElementAlign_VertCenter, 1, 0.8f, gui->GetRootElement());
 
-		txt1 = new GUIElementText(L"mainMenuTitle", L"Main Menu", Render::FontSize_Huge, 0, 0, 0.0f, 100.0f, GUIElement::GUIElementMeasureType_ContentSizeX,
+		txt1 = new GUIElementText(L"mainMenuTitle", L"Main Menu", Render::FontSize_Huge, 0, 0, 0, 0, GUIElement::GUIElementMeasureType_ContentSizeX | GUIElement::GUIElementMeasureType_ContentSizeY,
 			GUIElement::GUIElementAlign_HorCenter, 1, (GUIElement *)wnd1);
 
-		btn1 = new GUIElementButton(L"mainMenuExit", L"EXIT", Render::FontSize_Medium, 0.0f, 10.0f, 50.0f, 12.5f,
+		mt1 = new GUIElementMultilineText(L"mainMenuMultilineText",
+			L"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\
+			Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\
+			Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\
+			Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\
+			Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+			,
+			Render::FontSize_Small, 10, 20, 80, 60,
+			GUIElement::GUIElementMeasureType_PercentPosX | GUIElement::GUIElementMeasureType_PercentPosY | GUIElement::GUIElementMeasureType_PercentSizeX | GUIElement::GUIElementMeasureType_PercentSizeY,
+			0, 1, (GUIElement *)wnd1);
+
+		btn1 = new GUIElementButton(L"mainMenuExit", L"EXIT", Render::FontSize_Medium, 0, 0, 50, 12,
 			GUIElement::GUIElementMeasureType_PercentSizeY | GUIElement::GUIElementMeasureType_PercentSizeX | GUIElement::GUIElementMeasureType_PercentPosY,
 			GUIElement::GUIElementAlign_HorCenter | GUIElement::GUIElementAlign_Bottom, 1, (GUIElement *)wnd1);
-
 		btn1->SetActionClick(&GameExitButtonClick);
 	}
 
@@ -338,7 +349,7 @@ int main(void) {
 		glDisable(GL_DEPTH_TEST);
 
 		texturer->Bind(texturer->GetWhite());
-		renderer->DrawRect(0.0f, renderer->GetScreenHeight(), renderer->GetScreenWidth(), renderer->GetScreenHeight(), 1.0f, 1.0f, 0.0f, 1.0f);
+		renderer->DrawRect(0.0f, (float)renderer->GetScreenHeight(), (float)renderer->GetScreenWidth(), (float)renderer->GetScreenHeight(), 1.0f, 1.0f, 0.0f, 1.0f);
 		// TODO: combine functions into one?
 		gui->SetHoverElement(gui->FindElementByCoords(gui->GetRootElement(), global_mousepos[0], global_mousepos[1]));
 		gui->RenderElements(gui->GetRootElement(), global_mousepos[0], global_mousepos[1]);

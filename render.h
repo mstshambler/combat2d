@@ -99,6 +99,8 @@ public:
 	void InitFonts(const float &zoom);
 	RenderFont *FindFont(const int &size, const wstring &fontName) const;
 	void DrawString(Texture *texturer, const float &x, const float &y, const int &size, const wstring &fontName, const wstring &text) const;
+	void DrawStringBox(Texture *texturer, const float &boxX, const float &boxY, const float &boxSizeX, const float &boxSizeY, const float &x, const float &y, const int &size, const wstring &fontName, const wstring &text) const;
+	float GetStringBoxSize(const float &boxSizeX, const float &boxSizeY, const int &size, const wstring &fontName, const wstring &text);
 	float GetStringLength(const int &size, const wstring &fontName, const wstring &text) const;
 	float GetStringHeight(const int &size, const wstring &fontName, const wstring &text) const;
 };

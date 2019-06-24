@@ -72,14 +72,20 @@ void GUI::ResizeElements(GUIElement *root) {
 		else if (e->GetMeasureType() & GUIElement::GUIElementMeasureType_ContentSizeX) {
 			if (e->GetType() == GUIElement::GUIElementType_Text) {
 				GUIElementText *te = (GUIElementText *)e;
-				sx = renderer->GetStringLength(te->GetTextSize(), L"arial.ttf", *(te->GetText()));
+				sx = (int)renderer->GetStringLength(te->GetTextSize(), L"arial.ttf", *(te->GetText()));
 			} else
-				sx = 0.0f;
+				sx = 0;
 		} else
 			sx = (int)( (float)e->Size()->GetX() * zoom);
 		if (e->GetMeasureType() & GUIElement::GUIElementMeasureType_PercentSizeY)
 			sy = e->Size()->GetY() * root->PixelSize()->GetY() / 100;
-		else
+		else if (e->GetMeasureType() & GUIElement::GUIElementMeasureType_ContentSizeY) {
+			if (e->GetType() == GUIElement::GUIElementType_Text) {
+				GUIElementText *te = (GUIElementText *)e;
+				sy = (int)renderer->GetStringHeight(te->GetTextSize(), L"arial.ttf", *(te->GetText()));
+			} else
+				sy = 0;
+		} else
 			sy = (int)((float)e->Size()->GetY() * zoom);
 		e->PixelSize()->Set(sx, sy);
 
@@ -110,6 +116,7 @@ void GUI::ResizeElements(GUIElement *root) {
 				py = root->PixelPos()->GetY() + py;
 		}
 		e->PixelPos()->Set(px, py);
+		e->UpdateSize(renderer);
 
 		ResizeElements(e);
 	}	

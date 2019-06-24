@@ -25,11 +25,11 @@ void GUIElementButton::RenderElement(Texture *texturer, Render *renderer, const 
 	float sx, sy;
 
 	sx = renderer->GetStringLength(textSize, L"arial.ttf", text);
-	sy = renderer->GetStringHeight(textSize, L"arial.ttf", text);
+	sy = renderer->GetStringHeight(textSize, L"arial.ttf", text) / 2.0f;
 
 	if (hover) {
 		texturer->Bind(texturer->GetWhite());
-		renderer->DrawRect(pixelPos.GetX(), renderer->GetScreenHeight() - pixelPos.GetY(), pixelSize.GetX(), pixelSize.GetY(), 0.0f, 0.0f, 0.0f, 0.8f);
+		renderer->DrawRect((float)pixelPos.GetX(), (float)(renderer->GetScreenHeight() - pixelPos.GetY()), (float)pixelSize.GetX(), (float)pixelSize.GetY(), 0.0f, 0.0f, 0.0f, 0.8f);
 	}
 
 	sx = pixelPos.GetX() + pixelSize.GetX() / 2 - sx / 2;

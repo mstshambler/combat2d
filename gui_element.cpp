@@ -116,7 +116,6 @@ list<GUIElement *> *GUIElement::GetChilds() {
 }
 
 void GUIElement::RenderElement(Texture *texturer, Render *renderer, const byte &active, const byte &hover) const {
-
 }
 
 void GUIElement::SetActionClick(GUIElementClickAction a) {
@@ -159,3 +158,7 @@ GUIElement *GUIElement::FindElement(const wstring &id) {
 	}
 	return NULL;
 }
+
+void GUIElement::UpdateSize(Render *renderer) {
+}
+

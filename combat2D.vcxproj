@@ -72,6 +72,7 @@
     <ClCompile Include="gui.cpp" />
     <ClCompile Include="gui_button.cpp" />
     <ClCompile Include="gui_element.cpp" />
+    <ClCompile Include="gui_multilinetext.cpp" />
     <ClCompile Include="gui_text.cpp" />
     <ClCompile Include="gui_window.cpp" />
     <ClCompile Include="inventory.cpp" />

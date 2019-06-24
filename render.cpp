@@ -62,6 +62,8 @@ RenderFont::RenderFont(const wstring &name, const int &size, const int &pixelSiz
 	this->size = size;
 	this->pixelSize = pixelSize;
 
+	printf("PS: %i\n", pixelSize);
+
 	pathToFont = "data/fonts/";
 	{
 		char buf[256];
@@ -295,7 +297,7 @@ void Render::Init(const int &width, const int &height) {
 	glReadBuffer(GL_BACK);
 	glDisable(GL_LIGHT0);
 
-	InitFonts(1.0f);
+//	InitFonts(1.0f);
 }
 
 void Render::Begin(int width, int height) const {
@@ -511,6 +513,9 @@ void Render::InitFonts(const float &zoom) {
 
 	fontScale = (float)(screenHeight / 1080.0f) * zoom;
 
+	printf("%i %.3f %.3f\n", screenHeight, zoom, fontScale);
+
+	printf("InitFonts!");
 	if (FT_Init_FreeType(&ftLibrary)) {
 		printf("FreeType: init error");
 		return;
@@ -588,6 +593,111 @@ void Render::DrawString(Texture *texturer, const float &x, const float &y, const
 	}
 }
 
+void Render::DrawStringBox(Texture *texturer, const float &boxX, const float &boxY, const float &boxSizeX, const float &boxSizeY,
+	const float &x, const float &y, const int &size, const wstring &fontName, const wstring &text) const {
+	RenderFont *font;
+
+	font = FindFont(size, fontName);
+	if (font) {
+		wchar_t *c;
+		float cx;
+		float cy;
+
+		cx = x;
+		cy = y;
+		c = (wchar_t *)text.c_str();
+
+		texturer->Bind(font->GetTexture());
+
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		while (*c) {
+			RenderFontCharacter *charInfo;
+
+			charInfo = font->GetCharacterInfo(*c);
+			if (charInfo) {
+				float tx, ty, tsx, tsy, px, py, sx, sy;
+
+				if (cx + (float)charInfo->GetShiftX() > boxX + boxSizeX) {
+					cx = x;
+					cy -= (float)font->GetPixelSize();
+				}
+
+				px = cx + (float)charInfo->Bearing()->GetX();
+				py = cy - (float)font->GetPixelSize() + (float)charInfo->Bearing()->GetY();
+				sx = (float)font->CharacterSize()->GetX();
+				sy = (float)font->CharacterSize()->GetY();
+
+				if (boxY > py - sy && boxY - boxSizeY < py && boxX < px + sx && boxX + boxSizeX > px) {
+					float txp, typ;
+
+					if (boxX + boxSizeX < px + sx)
+						sx = boxX + boxSizeX - px;
+					
+					if (boxY - boxSizeY > py - sy)
+						sy = py - (boxY - boxSizeY);
+					
+					txp = (float)charInfo->Pos()->GetX();			
+					if (boxX > px) {
+						txp += boxX - px;
+						sx -= boxX - px;
+						px = boxX;
+					}
+					
+					typ = (float)charInfo->Pos()->GetY();
+					if (boxY < py) {
+						typ += py - boxY;
+						sy -= py - boxY;
+						py = boxY;
+					}
+
+					tx = txp / (float)font->TextureSize()->GetX();
+					ty = typ / (float)font->TextureSize()->GetY();
+					tsx = sx / (float)font->TextureSize()->GetX();
+					tsy = sy / (float)font->TextureSize()->GetY();
+
+					DrawTexturedRect(px, py, sx, sy, tx, ty, tsx, tsy);
+				}
+				cx += (float)charInfo->GetShiftX();
+			}
+			c++;
+		}
+	}
+}
+
+float Render::GetStringBoxSize(const float &boxSizeX, const float &boxSizeY, const int &size, const wstring &fontName, const wstring &text) {
+	RenderFont *font;
+	float cy;
+
+	font = FindFont(size, fontName);
+	if (font) {
+		wchar_t *c;
+		float cx;
+
+		cx = 0.0f;
+		cy = 0.0f;
+		c = (wchar_t *)text.c_str();
+
+		while (*c) {
+			RenderFontCharacter *charInfo;
+
+			charInfo = font->GetCharacterInfo(*c);
+			if (charInfo) {
+				if (cx + (float)charInfo->GetShiftX() > boxSizeX) {
+					cx = 0.0f;
+					cy += (float)font->GetPixelSize();
+				}
+
+				cx += (float)charInfo->GetShiftX();
+			}
+			c++;
+		}
+	}
+	return cy + (float)font->GetPixelSize() * 2.0f;
+}
+
 float Render::GetStringLength(const int &size, const wstring &fontName, const wstring &text) const {
 	RenderFont *font;
 	float px;
@@ -613,13 +723,10 @@ float Render::GetStringLength(const int &size, const wstring &fontName, const ws
 
 float Render::GetStringHeight(const int &size, const wstring &fontName, const wstring &text) const {
 	RenderFont *font;
-	float py;
-
-	py = 0.0f;
 
 	font = FindFont(size, fontName);
 	if (font) {
-		return font->GetPixelSize();
+		return (float)(font->GetPixelSize()*2);
 		/*
 		wchar_t *c;
 
@@ -638,5 +745,5 @@ float Render::GetStringHeight(const int &size, const wstring &fontName, const ws
 		}
 		*/
 	}
-	return py;
+	return 0.0f;
 }

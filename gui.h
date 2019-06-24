@@ -43,7 +43,8 @@ public:
 		GUIElementMeasureType_PercentPosY = 2,
 		GUIElementMeasureType_PercentSizeX = 4,
 		GUIElementMeasureType_PercentSizeY = 8,
-		GUIElementMeasureType_ContentSizeX = 16
+		GUIElementMeasureType_ContentSizeX = 16,
+		GUIElementMeasureType_ContentSizeY = 32
 	};
 
 	enum GUIElementAlign {
@@ -56,6 +57,7 @@ public:
 	enum GUIElementType {
 		GUIElementType_None = 0,
 		GUIElementType_Text,
+		GUIElementType_MultilineText,
 		GUIElementType_Button,
 		GUIElementType_Checkbox,
 		GUIElementType_List,
@@ -103,6 +105,8 @@ public:
 	virtual void DoActionClick(const int &x, const int &y);
 	virtual void DoActionKeyPress(const int &key, const int &scancode, const int &mod);
 
+	virtual void UpdateSize(Render *renderer);
+
 	GUIElement *FindElement(const wstring &id);
 };
 
@@ -133,13 +137,34 @@ public:
 		const byte &align, const byte &enabled, GUIElement *parent);
 	~GUIElementText();
 
-	void SetText(const wstring &t);
+	virtual void SetText(const wstring &t);
 	wstring *GetText() const;
 
 	void SetTextSize(const int &i);
 	int GetTextSize() const;
 
 	void RenderElement(Texture *texturer, Render *renderer, const byte &active, const byte &hover) const;
+};
+
+class GUIElementMultilineText : public GUIElementText {
+protected:
+	float scroll;
+	float maxScroll;
+
+public:
+	GUIElementMultilineText();
+	GUIElementMultilineText(const wstring &id, const wstring &text, const int &textSize, const int &x, const int &y, const int &sizeX, const int &sizeY, const byte &measureType,
+		const byte &align, const byte &enabled, GUIElement *parent);
+	~GUIElementMultilineText();
+
+	void SetScroll(const float &f);
+	float GetScroll() const;
+	void SetMaxScroll(const float &f);
+	float GetMaxScroll() const;
+
+	void RenderElement(Texture *texturer, Render *renderer, const byte &active, const byte &hover) const;
+
+	void UpdateSize(Render *renderer);
 };
 
 class GUIElementButton : public GUIElementText {
