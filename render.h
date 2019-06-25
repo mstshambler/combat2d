@@ -1,30 +1,13 @@
 #ifndef _render_h
 #define _render_h
 
-#include <string>
-#include <list>
-#include <map>
-
-#include <time.h>
-#ifndef WIN32
-#include <sys/time.h>
-#endif
-
-#include <windows.h> 
-
-#define GLEW_STATIC
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <GLFW/glfw3native.h>
+#include "common.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-#include "common.h"
 #include "gettimeofday.h"
 #include "texture.h"
-
-using namespace std;
 
 class RenderFontCharacter {
 protected:

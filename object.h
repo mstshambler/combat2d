@@ -1,13 +1,8 @@
 #ifndef _object_h
 #define _object_h
 
-#include <list>
-#include <string>
-
 #include "common.h"
 #include "inventory.h"
-
-using namespace std;
 
 class ObjectPattern {
 protected:

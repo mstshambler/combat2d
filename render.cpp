@@ -1,8 +1,5 @@
 #define _USE_MATH_DEFINES
 
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "render.h"
 
 RenderFontCharacter::RenderFontCharacter(const int &pos_x, const int &pos_y, const int &bearing_x, const int &bearing_y, const GLuint &shift_x, const GLuint &shift_y) {

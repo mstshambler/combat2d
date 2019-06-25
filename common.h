@@ -1,9 +1,26 @@
 #ifndef _common_h
 #define _common_h
 
+#define _USE_MATH_DEFINES
+#define GLFW_EXPOSE_NATIVE_WIN32
+#define GLFW_EXPOSE_NATIVE_WGL
+
+#include <stdio.h>
+#include <stdarg.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <math.h>
+
+#include <string>
+#include <list>
+#include <map>
+
 typedef unsigned char byte;
 typedef unsigned short ushort;
 typedef unsigned int uint;
+
+using namespace std;
 
 template <class T>
 class Point {

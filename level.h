@@ -1,14 +1,10 @@
 #ifndef _level_h
 #define _level_h
 
-#include <list>
-
 #include "common.h"
 #include "math.h"
 
 #include "object.h"
-
-using namespace std;
 
 class LevelTile {
 protected:

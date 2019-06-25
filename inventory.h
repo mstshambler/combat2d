@@ -1,10 +1,7 @@
 #ifndef _inventory_h
 #define _inventory_h
 
-#include <list>
-#include <string>
-
-using namespace std;
+#include "common.h"
 
 class Item {
 protected:

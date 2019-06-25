@@ -1,8 +1,13 @@
 #ifndef _gettimeofday_h
 #define _gettimeofday_h
 
+#include <time.h>
+#ifndef WIN32
+#include <sys/time.h>
+#endif
+
+#include <windows.h> 
 #ifdef WIN32
-#include <winsock.h> 
 /*
 struct timeval {
 	long tv_sec;

@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-
 #include "gui.h"
 
 GUIElementText::GUIElementText(Texturer *texturer, Render *renderer) : GUIElement(texturer, renderer) {

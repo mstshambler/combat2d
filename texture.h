@@ -1,11 +1,12 @@
 #ifndef _texture_h
 #define _texture_h
 
-#include <string>
-
 #include "common.h"
 
-using namespace std;
+#define GLEW_STATIC
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
 
 class Texturer {
 public:

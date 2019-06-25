@@ -1,17 +1,3 @@
-#define _USE_MATH_DEFINES
-#define GLFW_EXPOSE_NATIVE_WIN32
-#define GLFW_EXPOSE_NATIVE_WGL
-
-#include <stdio.h>
-#include <stdarg.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <math.h>
-
-#include <string>
-#include <list>
-
 #include "common.h"
 #include "gettimeofday.h"
 #include "render.h"

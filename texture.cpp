@@ -1,5 +1,3 @@
-#include <GLFW/glfw3.h>
-
 #include "texture.h"
 
 #define STB_IMAGE_IMPLEMENTATION
