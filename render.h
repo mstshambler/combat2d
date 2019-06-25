@@ -5,10 +5,23 @@
 #include <list>
 #include <map>
 
+#include <time.h>
+#ifndef WIN32
+#include <sys/time.h>
+#endif
+
+#include <windows.h> 
+
+#define GLEW_STATIC
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
 #include "common.h"
+#include "gettimeofday.h"
 #include "texture.h"
 
 using namespace std;
@@ -62,6 +75,9 @@ protected:
 	list<RenderFont *> *fonts;
 	list<GLuint> usableChars;
 
+	float tickMsecs;
+	struct timeval totalTime;
+
 public:
 	Render();
 	~Render();
@@ -104,6 +120,11 @@ public:
 		const byte &horizontalWrap, const float &x, const float &y, const int &size, const wstring &fontName, const wstring &text) const;
 	float GetStringLength(const int &size, const wstring &fontName, const wstring &text, const int &len = -1) const;
 	float GetStringHeight(const int &size, const wstring &fontName, const wstring &text, const float &boxSizeX = -1.0f) const;
+
+	void SetTickMsecs(const float &f);
+	float GetTickMSecs() const;
+	void SetTotalTime(const struct timeval &t);
+	struct timeval *GetTickTime();
 };
 
 #endif

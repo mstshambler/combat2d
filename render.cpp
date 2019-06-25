@@ -3,14 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifndef WIN32
-#include <sys/time.h>
-#endif
-
-#define GLEW_STATIC
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
 #include "render.h"
 
 RenderFontCharacter::RenderFontCharacter(const int &pos_x, const int &pos_y, const int &bearing_x, const int &bearing_y, const GLuint &shift_x, const GLuint &shift_y) {
@@ -202,6 +194,10 @@ Render::Render() {
 
 	screenWidth = 0;
 	screenHeight = 0;
+
+	tickMsecs = -1.0f;
+	totalTime.tv_sec = 0;
+	totalTime.tv_usec = 0;
 
 	// load available chars
 	for (i = 0; i < 256; i++)
@@ -728,4 +724,21 @@ float Render::GetStringHeight(const int &size, const wstring &fontName, const ws
 		}
 	}
 	return cy + (float)font->GetPixelSize() * 1.5f;
+}
+
+void Render::SetTickMsecs(const float &f) {
+	tickMsecs = f;
+}
+
+float Render::GetTickMSecs() const {
+	return tickMsecs;
+}
+
+void Render::SetTotalTime(const struct timeval &t) {
+	totalTime.tv_sec = t.tv_sec;
+	totalTime.tv_usec = t.tv_usec;
+}
+
+struct timeval *Render::GetTickTime() {
+	return &totalTime;
 }

@@ -12,18 +12,6 @@
 #include <string>
 #include <list>
 
-#include <time.h>
-#ifndef WIN32
-#include <sys/time.h>
-#endif
-
-#include <windows.h> 
-
-#define GLEW_STATIC
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <GLFW/glfw3native.h>
-
 #include "common.h"
 #include "gettimeofday.h"
 #include "render.h"
@@ -51,7 +39,8 @@ Texturer *texturer;
 GUI *gui;
 Game *game;
 
-struct timeval tick_otime, tick_ntime, tick_diff, tick_gameStart;
+struct timeval tick_otime, tick_ntime, tick_diff, tick_gameStart, tick_totalTime;
+float tick_msecs;
 
 static void error_callback(int error, const char* description) {
     fprintf(stderr, "Error: %s\n", description);
@@ -163,13 +152,6 @@ void size_callback(GLFWwindow* window, int x, int y) {
 }
 
 void doTick() {
-	float overall_msecs;
-
-	gettimeofday(&tick_ntime, NULL);
-	getdifftime(tick_ntime, tick_otime, &tick_diff);
-	overall_msecs = tick_diff.tv_sec * 1000 + tick_diff.tv_usec / 1000.0f;
-	if (overall_msecs > 20.0f)
-		overall_msecs = 20.0f;
 
 	/*
 	if (global_keys[GLFW_KEY_A])
@@ -182,7 +164,6 @@ void doTick() {
 		cameraPos[1] -= overall_msecs / 1000.0f;
 	*/
 
-	tick_otime = tick_ntime;
 }
 
 int main(void) {
@@ -385,10 +366,20 @@ int main(void) {
 
 	gui->ResizeElements(gui->GetRootElement());
 
+	tick_totalTime.tv_sec = 0;
+	tick_totalTime.tv_usec = 0;
 	while ( !glfwWindowShouldClose(window) && !game->GetExitGame()) {
 		float ox, oy, oz;
 
 		glfwPollEvents();
+
+		gettimeofday(&tick_ntime, NULL);
+		getdifftime(tick_ntime, tick_otime, &tick_diff);
+		tick_msecs = tick_diff.tv_sec * 1000 + tick_diff.tv_usec / 1000.0f;
+		tick_otime = tick_ntime;
+		getaddtime(tick_totalTime, tick_diff, &tick_totalTime);
+		renderer->SetTickMsecs(tick_msecs);
+		renderer->SetTotalTime(tick_totalTime);
 
 		doTick();
 

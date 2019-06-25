@@ -2,10 +2,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define GLEW_STATIC
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
 #include "gui.h"
 
 GUIElementButton::GUIElementButton(Texturer *texturer, Render *renderer) : GUIElementText(texturer, renderer) {

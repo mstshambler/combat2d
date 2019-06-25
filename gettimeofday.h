@@ -2,6 +2,7 @@
 #define _gettimeofday_h
 
 #ifdef WIN32
+#include <winsock.h> 
 /*
 struct timeval {
 	long tv_sec;

@@ -2,10 +2,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define GLEW_STATIC
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
 #include "gui.h"
 
 GUIElementEdit::GUIElementEdit(Texturer *texturer, Render *renderer) : GUIElementText(texturer, renderer) {
@@ -34,17 +30,17 @@ void GUIElementEdit::RenderElement(const byte &active, const byte &hover) const 
 
 	if (active) {
 		float cursorPixelPos;
-		RenderFont *font;
+		float alpha;
 
 		renderer->DrawRect((float)pixelPos.GetX(), (float)(renderer->GetScreenHeight() - pixelPos.GetY()), (float)pixelSize.GetX(), (float)pixelSize.GetY(), 0.0f, 0.0f, 0.0f, 0.8f);
 
-		font = renderer->FindFont(textSize, L"arial.ttf");
-		if (font) {
-			//			renderer->DrawRect((float)pixelPos.GetX(), (float)(renderer->GetScreenHeight() - pixelPos.GetY() - (float)font->GetPixelSize()), (float)pixelSize.GetX(), 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+		alpha = (renderer->GetTickTime()->tv_sec % 2) * 1000.0f + renderer->GetTickTime()->tv_usec / 1000.0f;
+		alpha = alpha / 1000.0f;
+		if (alpha > 1.0f)
+			alpha = 2.0f - alpha;
 
-			cursorPixelPos = renderer->GetStringLength(textSize, L"arial.ttf", text, cursorPos);
-			renderer->DrawRect((float)pixelPos.GetX() + cursorPixelPos - scroll, (float)(renderer->GetScreenHeight() - pixelPos.GetY()), 1.0f, (float)font->GetPixelSize(), 1.0f, 1.0f, 1.0f, 1.0f);
-		}
+		cursorPixelPos = renderer->GetStringLength(textSize, L"arial.ttf", text, cursorPos);
+		renderer->DrawRect((float)pixelPos.GetX() + cursorPixelPos - scroll, (float)(renderer->GetScreenHeight() - pixelPos.GetY()), 2.0f, (float)pixelSize.GetY(), 1.0f, 1.0f, 1.0f, alpha);
 	} else if (hover)
 		renderer->DrawRect((float)pixelPos.GetX(), (float)(renderer->GetScreenHeight() - pixelPos.GetY()), (float)pixelSize.GetX(), (float)pixelSize.GetY(), 0.0f, 0.0f, 0.0f, 0.8f);
 	renderer->DrawStringBox(texturer, (float)pixelPos.GetX(), (float)(renderer->GetScreenHeight() - pixelPos.GetY()), (float)pixelSize.GetX(), (float)pixelSize.GetY(),
