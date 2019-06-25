@@ -572,16 +572,18 @@ void Render::DrawString(Texturer *texturer, const float &x, const float &y, cons
 
 			charInfo = font->GetCharacterInfo(*c);
 			if (charInfo) {
-				float tx, ty, sx, sy;
+				if (*c != L'\n' && *c != L'\r') {
+					float tx, ty, sx, sy;
 
-				tx = (float)charInfo->Pos()->GetX() / (float)font->TextureSize()->GetX();
-				ty = (float)charInfo->Pos()->GetY() / (float)font->TextureSize()->GetY();
-				sx = (float)font->CharacterSize()->GetX() / (float)font->TextureSize()->GetX();
-				sy = (float)font->CharacterSize()->GetY() / (float)font->TextureSize()->GetY();
+					tx = (float)charInfo->Pos()->GetX() / (float)font->TextureSize()->GetX();
+					ty = (float)charInfo->Pos()->GetY() / (float)font->TextureSize()->GetY();
+					sx = (float)font->CharacterSize()->GetX() / (float)font->TextureSize()->GetX();
+					sy = (float)font->CharacterSize()->GetY() / (float)font->TextureSize()->GetY();
 
-				DrawTexturedRect(px + (float)charInfo->Bearing()->GetX(), y - (float)font->GetPixelSize() + (float)charInfo->Bearing()->GetY(),
-					(float)font->CharacterSize()->GetX(), (float)font->CharacterSize()->GetY(), tx, ty, sx, sy);
-				px += (float)charInfo->GetShiftX();
+					DrawTexturedRect(px + (float)charInfo->Bearing()->GetX(), y - (float)font->GetPixelSize() + (float)charInfo->Bearing()->GetY(),
+						(float)font->CharacterSize()->GetX(), (float)font->CharacterSize()->GetY(), tx, ty, sx, sy);
+					px += (float)charInfo->GetShiftX();
+				}
 			}
 			c++;
 		}
@@ -589,7 +591,7 @@ void Render::DrawString(Texturer *texturer, const float &x, const float &y, cons
 }
 
 void Render::DrawStringBox(Texturer *texturer, const float &boxX, const float &boxY, const float &boxSizeX, const float &boxSizeY,
-	const float &x, const float &y, const int &size, const wstring &fontName, const wstring &text) const {
+	const byte &horizontalWrap, const float &x, const float &y, const int &size, const wstring &fontName, const wstring &text) const {
 	RenderFont *font;
 
 	font = FindFont(size, fontName);
@@ -615,54 +617,84 @@ void Render::DrawStringBox(Texturer *texturer, const float &boxX, const float &b
 			if (charInfo) {
 				float tx, ty, tsx, tsy, px, py, sx, sy;
 
-				if (cx + (float)charInfo->GetShiftX() > boxX + boxSizeX) {
+				if (*c != L'\n' && *c != L'\r') {
+					if (horizontalWrap && cx + (float)charInfo->GetShiftX() > boxX + boxSizeX) {
+						cx = x;
+						cy -= (float)font->GetPixelSize();
+					}
+
+					px = cx + (float)charInfo->Bearing()->GetX();
+					py = cy - (float)font->GetPixelSize() + (float)charInfo->Bearing()->GetY();
+					sx = (float)font->CharacterSize()->GetX();
+					sy = (float)font->CharacterSize()->GetY();
+
+					if (boxY > py - sy && boxY - boxSizeY < py && boxX < px + sx && boxX + boxSizeX > px) {
+						float txp, typ;
+
+						if (boxX + boxSizeX < px + sx)
+							sx = boxX + boxSizeX - px;
+
+						if (boxY - boxSizeY > py - sy)
+							sy = py - (boxY - boxSizeY);
+
+						txp = (float)charInfo->Pos()->GetX();
+						if (boxX > px) {
+							txp += boxX - px;
+							sx -= boxX - px;
+							px = boxX;
+						}
+
+						typ = (float)charInfo->Pos()->GetY();
+						if (boxY < py) {
+							typ += py - boxY;
+							sy -= py - boxY;
+							py = boxY;
+						}
+
+						tx = txp / (float)font->TextureSize()->GetX();
+						ty = typ / (float)font->TextureSize()->GetY();
+						tsx = sx / (float)font->TextureSize()->GetX();
+						tsy = sy / (float)font->TextureSize()->GetY();
+
+						DrawTexturedRect(px, py, sx, sy, tx, ty, tsx, tsy);
+					}
+					cx += (float)charInfo->GetShiftX();
+				} else if (*c == L'\n') {
 					cx = x;
 					cy -= (float)font->GetPixelSize();
 				}
-
-				px = cx + (float)charInfo->Bearing()->GetX();
-				py = cy - (float)font->GetPixelSize() + (float)charInfo->Bearing()->GetY();
-				sx = (float)font->CharacterSize()->GetX();
-				sy = (float)font->CharacterSize()->GetY();
-
-				if (boxY > py - sy && boxY - boxSizeY < py && boxX < px + sx && boxX + boxSizeX > px) {
-					float txp, typ;
-
-					if (boxX + boxSizeX < px + sx)
-						sx = boxX + boxSizeX - px;
-					
-					if (boxY - boxSizeY > py - sy)
-						sy = py - (boxY - boxSizeY);
-					
-					txp = (float)charInfo->Pos()->GetX();			
-					if (boxX > px) {
-						txp += boxX - px;
-						sx -= boxX - px;
-						px = boxX;
-					}
-					
-					typ = (float)charInfo->Pos()->GetY();
-					if (boxY < py) {
-						typ += py - boxY;
-						sy -= py - boxY;
-						py = boxY;
-					}
-
-					tx = txp / (float)font->TextureSize()->GetX();
-					ty = typ / (float)font->TextureSize()->GetY();
-					tsx = sx / (float)font->TextureSize()->GetX();
-					tsy = sy / (float)font->TextureSize()->GetY();
-
-					DrawTexturedRect(px, py, sx, sy, tx, ty, tsx, tsy);
-				}
-				cx += (float)charInfo->GetShiftX();
 			}
 			c++;
 		}
 	}
 }
 
-float Render::GetStringBoxSize(const float &boxSizeX, const float &boxSizeY, const int &size, const wstring &fontName, const wstring &text) {
+float Render::GetStringLength(const int &size, const wstring &fontName, const wstring &text, const int &len) const {
+	RenderFont *font;
+	float px;
+
+	px = 0.0f;
+
+	font = FindFont(size, fontName);
+	if (font) {
+		wchar_t *c;
+		int k = 0;
+
+		c = (wchar_t *)text.c_str();
+		while (*c && (len < 0 || k < len)) {
+			RenderFontCharacter *charInfo;
+
+			charInfo = font->GetCharacterInfo(*c);
+			if (charInfo)
+				px += (float)charInfo->GetShiftX();
+			c++;
+			k++;
+		}
+	}
+	return px;
+}
+
+float Render::GetStringHeight(const int &size, const wstring &fontName, const wstring &text, const float &boxSizeX) const {
 	RenderFont *font;
 	float cy;
 
@@ -680,65 +712,20 @@ float Render::GetStringBoxSize(const float &boxSizeX, const float &boxSizeY, con
 
 			charInfo = font->GetCharacterInfo(*c);
 			if (charInfo) {
-				if (cx + (float)charInfo->GetShiftX() > boxSizeX) {
+				if (*c != L'\n' && *c != L'\r') {
+					if (boxSizeX > 0.0f && cx + (float)charInfo->GetShiftX() > boxSizeX) {
+						cx = 0.0f;
+						cy += (float)font->GetPixelSize();
+					}
+
+					cx += (float)charInfo->GetShiftX();
+				} else if (*c == L'\n') {
 					cx = 0.0f;
 					cy += (float)font->GetPixelSize();
 				}
-
-				cx += (float)charInfo->GetShiftX();
 			}
 			c++;
 		}
 	}
-	return cy + (float)font->GetPixelSize() * 2.0f;
-}
-
-float Render::GetStringLength(const int &size, const wstring &fontName, const wstring &text) const {
-	RenderFont *font;
-	float px;
-
-	px = 0.0f;
-
-	font = FindFont(size, fontName);
-	if (font) {
-		wchar_t *c;
-
-		c = (wchar_t *)text.c_str();
-		while (*c) {
-			RenderFontCharacter *charInfo;
-
-			charInfo = font->GetCharacterInfo(*c);
-			if (charInfo)
-				px += (float)charInfo->GetShiftX();
-			c++;
-		}
-	}
-	return px;
-}
-
-float Render::GetStringHeight(const int &size, const wstring &fontName, const wstring &text) const {
-	RenderFont *font;
-
-	font = FindFont(size, fontName);
-	if (font) {
-		return (float)(font->GetPixelSize()*2);
-		/*
-		wchar_t *c;
-
-		c = (wchar_t *)text.c_str();
-		while (*c) {
-			RenderFontCharacter *charInfo;
-
-			charInfo = font->GetCharacterInfo(*c);
-			if (charInfo) {
-				float py2 = (float)font->GetPixelSize() + (float)charInfo->Bearing()->GetY();
-
-				if (py2 > py)
-					py = py2;
-			}
-			c++;
-		}
-		*/
-	}
-	return 0.0f;
+	return cy + (float)font->GetPixelSize() * 1.5f;
 }

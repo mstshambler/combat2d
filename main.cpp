@@ -58,14 +58,24 @@ static void error_callback(int error, const char* description) {
 }
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	byte res = 0;
+
 	if (key != GLFW_KEY_UNKNOWN) {
-		if (action == GLFW_PRESS) {
+		if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+			GUIElement *activeElement;
+
 			global_keys[key] = true;
 			// global_keysOnce[key] = true;
 
-			if (key == GLFW_KEY_ESCAPE)
-				glfwSetWindowShouldClose(window, 1);
+			activeElement = gui->GetActiveElement();
+			if (activeElement)
+				res = activeElement->DoActionKeyPress(key, scancode, mods);
 
+			// TODO: No GUI elements, do something else...
+			if (!res) {
+				if (key == GLFW_KEY_ESCAPE)
+					glfwSetWindowShouldClose(window, 1);
+			}
 		} else if (action == GLFW_RELEASE) {
 			global_keys[key] = false;
 		}
@@ -74,12 +84,27 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 //	printf("Key: %i %i Status: %i Mods: %i\n", key, scancode, action, mods);
 }
 
+static void character_callback(GLFWwindow* window, unsigned int keycode) {
+	byte res = 0;
+
+	GUIElement *activeElement;
+
+	activeElement = gui->GetActiveElement();
+	if (activeElement)
+		res = activeElement->DoActionCharPress(keycode);
+
+	// TODO: No GUI elements, do something else...
+	if (!res) {
+	}
+}
+
 static void cursor_position_callback(GLFWwindow* window, double x, double y) {
+	byte res = 0;
+
 	global_mousepos[0] = (float)x;
 	global_mousepos[1] = (float)y;
 
 	if (global_mouse[0]) {
-		byte res;
 		if (gui->GetHalfActiveElement()) {
 			res = gui->GetHalfActiveElement()->DoActionHold((int)global_mousepos[0], (int)global_mousepos[1]);
 		}
@@ -92,15 +117,20 @@ static void cursor_position_callback(GLFWwindow* window, double x, double y) {
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+	byte res = 0;
+
 	global_mouse[button] = action == GLFW_PRESS ? true : false;
 
 	if (button == 0) {
 		GUIElement *clickElement = NULL;
-		byte res;
+		GUIElement *prevElement = NULL;
 
 		if (action == GLFW_PRESS) {
-			gui->SetActiveElement(NULL);
+			prevElement = gui->GetActiveElement();
 			clickElement = gui->FindElementByCoords(gui->GetRootElement(), global_mousepos[0], global_mousepos[1]);
+			if (prevElement && prevElement != clickElement)
+				prevElement->DoActionLoseFocus();
+			gui->SetActiveElement(NULL);
 			gui->SetHalfActiveElement(clickElement);
 			if (clickElement)
 				res = clickElement->DoActionHold((int)global_mousepos[0], (int)global_mousepos[1]);
@@ -181,6 +211,7 @@ int main(void) {
     glfwSwapInterval(0);
 
 	glfwSetKeyCallback(window, key_callback);
+	glfwSetCharCallback(window, character_callback);
 	glfwSetCursorPosCallback(window, cursor_position_callback);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSetScrollCallback(window, scroll_callback);
@@ -324,6 +355,7 @@ int main(void) {
 		GUIElementText *txt1;
 		GUIElementButton *btn1;
 		GUIElementMultilineText *mt1;
+		GUIElementEdit *ed1;
 
 		wnd1 = new GUIElementWindow(texturer, renderer, L"mainMenu", 0, 0, 50, 50, GUIElement::GUIElementMeasureType_PercentSizeX | GUIElement::GUIElementMeasureType_PercentSizeY,
 			GUIElement::GUIElementAlign_HorCenter | GUIElement::GUIElementAlign_VertCenter, 1, 0.8f, gui->GetRootElement());
@@ -331,14 +363,17 @@ int main(void) {
 		txt1 = new GUIElementText(texturer, renderer, L"mainMenuTitle", L"Main Menu", Render::FontSize_Huge, 0, 0, 0, 0, GUIElement::GUIElementMeasureType_ContentSizeX | GUIElement::GUIElementMeasureType_ContentSizeY,
 			GUIElement::GUIElementAlign_HorCenter, 1, (GUIElement *)wnd1);
 
+		ed1 = new GUIElementEdit(texturer, renderer, L"mainMenuEdit", L"", Render::FontSize_Medium, 10, 12, 50, 0,
+			GUIElement::GUIElementMeasureType_PercentPosX | GUIElement::GUIElementMeasureType_PercentPosY | GUIElement::GUIElementMeasureType_PercentSizeX | GUIElement::GUIElementMeasureType_ContentSizeY,
+			0, 1, (GUIElement *)wnd1);
+
 		mt1 = new GUIElementMultilineText(texturer, renderer, L"mainMenuMultilineText",
 			L"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\
 			Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\
 			Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\
 			Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\
 			Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-			,
-			Render::FontSize_Small, 10, 20, 80, 60,
+			, Render::FontSize_Small, 10, 20, 80, 60,
 			GUIElement::GUIElementMeasureType_PercentPosX | GUIElement::GUIElementMeasureType_PercentPosY | GUIElement::GUIElementMeasureType_PercentSizeX | GUIElement::GUIElementMeasureType_PercentSizeY,
 			0, 1, (GUIElement *)wnd1);
 

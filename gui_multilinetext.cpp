@@ -9,19 +9,14 @@
 #include "gui.h"
 
 GUIElementMultilineText::GUIElementMultilineText(Texturer *texturer, Render *renderer) : GUIElementText(texturer, renderer) {
-	scroll = 0.0f;
-	maxScroll = 0.0f;
 	scrollHit = 0;
 }
 
 GUIElementMultilineText::GUIElementMultilineText(Texturer *texturer, Render *renderer, const wstring &id, const wstring &text, const int &textSize, const int &x, const int &y, const int &sizeX, const int &sizeY, const byte &measureType,
 	const byte &align, const byte &enabled, GUIElement *parent) : GUIElementText(texturer, renderer, id, text, textSize, x, y, sizeX, sizeY, measureType, align, enabled, parent) {
 	type = GUIElement::GUIElementType_MultilineText;
-	scroll = 0.0f;
-	maxScroll = 0.0f;
 	scrollHit = 0;
 }
-
 
 GUIElementMultilineText::~GUIElementMultilineText() {
 }
@@ -29,22 +24,6 @@ GUIElementMultilineText::~GUIElementMultilineText() {
 void GUIElementMultilineText::SetText(const wstring &t) {
 	text = t;
 	UpdateSize();
-}
-
-void GUIElementMultilineText::SetScroll(const float &f) {
-	scroll = f;
-}
-
-float GUIElementMultilineText::GetScroll() const {
-	return scroll;
-}
-
-void GUIElementMultilineText::SetMaxScroll(const float &f) {
-	maxScroll = f;
-}
-
-float GUIElementMultilineText::GetMaxScroll() const {
-	return maxScroll;
 }
 
 void GUIElementMultilineText::RenderElement(const byte &active, const byte &hover) const {
@@ -61,15 +40,15 @@ void GUIElementMultilineText::RenderElement(const byte &active, const byte &hove
 	}
 
 	renderer->DrawStringBox(texturer, pixelPos.GetX() + 8.0f, renderer->GetScreenHeight() - pixelPos.GetY() - 8.0f, sx, pixelSize.GetY() - 16.0f,
-		pixelPos.GetX() + 8.0f, renderer->GetScreenHeight() - pixelPos.GetY() + scroll - 8.0f, textSize, L"arial.ttf", text);
+		1, pixelPos.GetX() + 8.0f, renderer->GetScreenHeight() - pixelPos.GetY() + scroll - 8.0f, textSize, L"arial.ttf", text);
 
 }
 
 void GUIElementMultilineText::UpdateSize() {
-	float contentHeight = renderer->GetStringBoxSize(pixelSize.GetX() - 16.0f, pixelSize.GetY() - 16.0f, textSize, L"arial.ttf", text);
+	float contentHeight = renderer->GetStringHeight(textSize, L"arial.ttf", text, pixelSize.GetX() - 16.0f);
 
 	if (contentHeight > pixelSize.GetY() - 16.0f) {
-		contentHeight = renderer->GetStringBoxSize(pixelSize.GetX() - 32.0f, pixelSize.GetY() - 16.0f, textSize, L"arial.ttf", text);
+		contentHeight = renderer->GetStringHeight(textSize, L"arial.ttf", text, pixelSize.GetX() - 32.0f);
 		maxScroll = contentHeight - (pixelSize.GetY() - 16.0f);
 	}
 }

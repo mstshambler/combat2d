@@ -25,7 +25,7 @@ void GUIElementButton::RenderElement(const byte &active, const byte &hover) cons
 	float sx, sy;
 
 	sx = renderer->GetStringLength(textSize, L"arial.ttf", text);
-	sy = renderer->GetStringHeight(textSize, L"arial.ttf", text) / 2.0f;
+	sy = renderer->GetStringHeight(textSize, L"arial.ttf", text);
 
 	if (hover) {
 		texturer->Bind(texturer->GetWhite());

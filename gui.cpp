@@ -83,6 +83,9 @@ void GUI::ResizeElements(GUIElement *root) {
 			if (e->GetType() == GUIElement::GUIElementType_Text) {
 				GUIElementText *te = (GUIElementText *)e;
 				sy = (int)renderer->GetStringHeight(te->GetTextSize(), L"arial.ttf", *(te->GetText()));
+			} else if (e->GetType() == GUIElement::GUIElementType_Edit) {
+					GUIElementEdit *te = (GUIElementEdit *)e;
+					sy = (int)renderer->GetStringHeight(te->GetTextSize(), L"arial.ttf", *(te->GetText()));
 			} else
 				sy = 0;
 		} else

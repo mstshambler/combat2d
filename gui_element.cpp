@@ -165,6 +165,14 @@ byte GUIElement::DoActionKeyPress(const int &key, const int &scancode, const int
 	return 0;
 }
 
+byte GUIElement::DoActionCharPress(const unsigned int &keycode) {
+	return 0;
+}
+
+byte GUIElement::DoActionLoseFocus() {
+	return 0;
+}
+
 void GUIElement::SetId(const wstring &t) {
 	id = t;
 }

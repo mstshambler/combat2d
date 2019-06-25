@@ -109,6 +109,8 @@ public:
 	virtual byte DoActionStopHold(const int &x, const int &y);
 	virtual byte DoActionClick(const int &x, const int &y);
 	virtual byte DoActionKeyPress(const int &key, const int &scancode, const int &mod);
+	virtual byte DoActionCharPress(const unsigned int &keycode);
+	virtual byte DoActionLoseFocus();
 
 	virtual void UpdateSize();
 
@@ -135,6 +137,8 @@ class GUIElementText : public GUIElement {
 protected:
 	wstring text;
 	int textSize;
+	float scroll;
+	float maxScroll;
 
 public:
 	GUIElementText(Texturer *texturer, Render *renderer);
@@ -147,6 +151,13 @@ public:
 
 	void SetTextSize(const int &i);
 	int GetTextSize() const;
+
+	void SetScroll(const float &f);
+	float GetScroll() const;
+	void SetMaxScroll(const float &f);
+	float GetMaxScroll() const;
+
+	void UpdateSize();
 
 	void RenderElement(const byte &active, const byte &hover) const;
 };
@@ -164,11 +175,6 @@ public:
 	~GUIElementMultilineText();
 
 	virtual void SetText(const wstring &t);
-
-	void SetScroll(const float &f);
-	float GetScroll() const;
-	void SetMaxScroll(const float &f);
-	float GetMaxScroll() const;
 
 	void RenderElement(const byte &active, const byte &hover) const;
 
@@ -188,6 +194,28 @@ public:
 	void RenderElement(const byte &active, const byte &hover) const;
 };
 
+class GUIElementEdit : public GUIElementText {
+protected:
+	int cursorPos;
+
+public:
+	GUIElementEdit(Texturer *texturer, Render *renderer);
+	GUIElementEdit(Texturer *texturer, Render *renderer, const wstring &id, const wstring &text, const int &textSize, const int &x, const int &y, const int &sizeX, const int &sizeY, const byte &measureType,
+		const byte &align, const byte &enabled, GUIElement *parent);
+	~GUIElementEdit();
+
+	void SetCursorPos(const int &i);
+	int GetCursorPos() const;
+
+	void RenderElement(const byte &active, const byte &hover) const;
+
+	byte DoActionClick(const int &x, const int &y);
+	byte DoActionCharPress(const unsigned int &keycode);
+	byte DoActionKeyPress(const int &key, const int &scancode, const int &mod);
+	byte DoActionLoseFocus();
+
+	void ModifyScroll(const int &shift);
+};
 
 class GUI {
 protected:

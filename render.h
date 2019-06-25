@@ -94,15 +94,16 @@ public:
 	void ConvertWindowToScreenCoords(const float &x, const float &y, float &sx, float &sy) const;
 
 	void ReadCoordsUnderCursor(const int &x, const int &y, float *ox, float *oy, float *oz);
-	void DrawSprite3D(const float &x, const float &y, const float &z, const float &width, const float &height, const float &tx, const float &ty, const float &t_width, const float &t_height, const float &angle);
+	void DrawSprite3D(const float &x, const float &y, const float &z, const float &width, const float &height,
+		const float &tx, const float &ty, const float &t_width, const float &t_height, const float &angle);
 
 	void InitFonts(const float &zoom);
 	RenderFont *FindFont(const int &size, const wstring &fontName) const;
 	void DrawString(Texturer *texturer, const float &x, const float &y, const int &size, const wstring &fontName, const wstring &text) const;
-	void DrawStringBox(Texturer *texturer, const float &boxX, const float &boxY, const float &boxSizeX, const float &boxSizeY, const float &x, const float &y, const int &size, const wstring &fontName, const wstring &text) const;
-	float GetStringBoxSize(const float &boxSizeX, const float &boxSizeY, const int &size, const wstring &fontName, const wstring &text);
-	float GetStringLength(const int &size, const wstring &fontName, const wstring &text) const;
-	float GetStringHeight(const int &size, const wstring &fontName, const wstring &text) const;
+	void DrawStringBox(Texturer *texturer, const float &boxX, const float &boxY, const float &boxSizeX, const float &boxSizeY,
+		const byte &horizontalWrap, const float &x, const float &y, const int &size, const wstring &fontName, const wstring &text) const;
+	float GetStringLength(const int &size, const wstring &fontName, const wstring &text, const int &len = -1) const;
+	float GetStringHeight(const int &size, const wstring &fontName, const wstring &text, const float &boxSizeX = -1.0f) const;
 };
 
 #endif
