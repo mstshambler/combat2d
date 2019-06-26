@@ -161,6 +161,10 @@ byte GUIElement::DoActionCharPress(const unsigned int &keycode) {
 	return 0;
 }
 
+byte GUIElement::DoActionScroll(const float &x, const float &y) {
+	return 0;
+}
+
 byte GUIElement::DoActionLoseFocus() {
 	return 0;
 }

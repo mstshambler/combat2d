@@ -20,11 +20,20 @@ void GUIElementButton::RenderElement(const byte &active, const byte &hover) cons
 	sy = renderer->GetStringHeight(textSize, L"arial.ttf", text);
 
 	if (hover) {
+		float alpha;
+
 		texturer->Bind(texturer->GetWhite());
-		renderer->DrawRect((float)pixelPos.GetX(), (float)(renderer->GetScreenHeight() - pixelPos.GetY()), (float)pixelSize.GetX(), (float)pixelSize.GetY(), 0.0f, 0.0f, 0.0f, 0.8f);
+		alpha = (renderer->GetTickTime()->tv_sec % 2) * 1000.0f + renderer->GetTickTime()->tv_usec / 1000.0f;
+		alpha = alpha / 1000.0f;
+		if (alpha > 1.0f)
+			alpha = 2.0f - alpha;
+		alpha = 1.0f - 0.6f * alpha;
+		renderer->DrawRect((float)pixelPos.GetX(), (float)(renderer->GetScreenHeight() - pixelPos.GetY()), (float)pixelSize.GetX(), (float)pixelSize.GetY(), 0.0f, 0.0f, 0.0f, alpha);
 	}
 
 	sx = pixelPos.GetX() + pixelSize.GetX() / 2 - sx / 2;
 	sy = pixelPos.GetY() + pixelSize.GetY() / 2 - sy / 2;
-	renderer->DrawString(texturer, sx, renderer->GetScreenHeight() - sy, textSize, L"arial.ttf", text);
+	//renderer->DrawString(texturer, sx, renderer->GetScreenHeight() - sy, textSize, L"arial.ttf", text);
+	renderer->DrawStringBox(texturer, (float)pixelPos.GetX(), (float)(renderer->GetScreenHeight() - pixelPos.GetY()), (float)pixelSize.GetX(), (float)pixelSize.GetY(),
+		0, sx, (float)(renderer->GetScreenHeight() - sy), textSize, L"arial.ttf", text);
 }

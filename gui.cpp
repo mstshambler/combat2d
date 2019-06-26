@@ -59,16 +59,6 @@ void GUI::ResizeElements(GUIElement *root) {
 
 		e = *li;
 		
-		if (e->GetMeasureType() & GUIElement::GUIElementMeasureType_PercentSizeX)
-			sx = e->Size()->GetX() * root->PixelSize()->GetX() / 100;
-		else if (e->GetMeasureType() & GUIElement::GUIElementMeasureType_ContentSizeX) {
-			if (e->GetType() == GUIElement::GUIElementType_Text) {
-				GUIElementText *te = (GUIElementText *)e;
-				sx = (int)renderer->GetStringLength(te->GetTextSize(), L"arial.ttf", *(te->GetText()));
-			} else
-				sx = 0;
-		} else
-			sx = (int)( (float)e->Size()->GetX() * zoom);
 		if (e->GetMeasureType() & GUIElement::GUIElementMeasureType_PercentSizeY)
 			sy = e->Size()->GetY() * root->PixelSize()->GetY() / 100;
 		else if (e->GetMeasureType() & GUIElement::GUIElementMeasureType_ContentSizeY) {
@@ -76,12 +66,37 @@ void GUI::ResizeElements(GUIElement *root) {
 				GUIElementText *te = (GUIElementText *)e;
 				sy = (int)renderer->GetStringHeight(te->GetTextSize(), L"arial.ttf", *(te->GetText()));
 			} else if (e->GetType() == GUIElement::GUIElementType_Edit) {
-					GUIElementEdit *te = (GUIElementEdit *)e;
-					sy = (int)renderer->GetStringHeight(te->GetTextSize(), L"arial.ttf", *(te->GetText()));
+				GUIElementEdit *te = (GUIElementEdit *)e;
+				sy = (int)renderer->GetStringHeight(te->GetTextSize(), L"arial.ttf", *(te->GetText()));
+			} else if (e->GetType() == GUIElement::GUIElementType_Checkbox) {
+				GUIElementCheckbox *te = (GUIElementCheckbox *)e;
+				sy = (int)renderer->GetStringHeight(te->GetTextSize(), L"arial.ttf", *(te->GetText()));
+			} else if (e->GetType() == GUIElement::GUIElementType_Radio) {
+				GUIElementRadio *te = (GUIElementRadio *)e;
+				sy = (int)renderer->GetStringHeight(te->GetTextSize(), L"arial.ttf", *(te->GetText()));
 			} else
 				sy = 0;
 		} else
 			sy = (int)((float)e->Size()->GetY() * zoom);
+
+		if (e->GetMeasureType() & GUIElement::GUIElementMeasureType_PercentSizeX)
+			sx = e->Size()->GetX() * root->PixelSize()->GetX() / 100;
+		else if (e->GetMeasureType() & GUIElement::GUIElementMeasureType_ContentSizeX) {
+			if (e->GetType() == GUIElement::GUIElementType_Text) {
+				GUIElementText *te = (GUIElementText *)e;
+				sx = (int)renderer->GetStringLength(te->GetTextSize(), L"arial.ttf", *(te->GetText()));
+			} else if (e->GetType() == GUIElement::GUIElementType_Checkbox) {
+				GUIElementCheckbox *te = (GUIElementCheckbox *)e;
+				sx = (int)renderer->GetStringLength(te->GetTextSize(), L"arial.ttf", *(te->GetText())) + sy - 8;
+			} else if (e->GetType() == GUIElement::GUIElementType_Radio) {
+				GUIElementRadio *te = (GUIElementRadio *)e;
+				sx = (int)renderer->GetStringLength(te->GetTextSize(), L"arial.ttf", *(te->GetText())) + sy - 8;
+			} else
+				sx = 0;
+		} else
+			sx = (int)( (float)e->Size()->GetX() * zoom);
+
+
 		e->PixelSize()->Set(sx, sy);
 
 		if (e->GetAlign() & GUIElement::GUIElementAlign_HorCenter)

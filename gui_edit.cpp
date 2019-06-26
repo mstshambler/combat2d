@@ -1,12 +1,14 @@
 #include "gui.h"
 
 GUIElementEdit::GUIElementEdit(Texturer *texturer, Render *renderer) : GUIElementText(texturer, renderer) {
+	type = GUIElement::GUIElementType_Edit;
 	cursorPos = 0;
 }
 
 GUIElementEdit::GUIElementEdit(Texturer *texturer, Render *renderer, const wstring &id, const wstring &text, const int &textSize,
 	const int &x, const int &y, const int &sizeX, const int &sizeY, const byte &measureType, const byte &align, const byte &enabled, GUIElement *parent) : GUIElementText(texturer, renderer,
 	id, text, textSize, x, y, sizeX, sizeY, measureType, align, enabled, parent) {
+	type = GUIElement::GUIElementType_Edit;
 	cursorPos = text.length();
 }
 

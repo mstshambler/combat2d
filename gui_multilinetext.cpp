@@ -1,6 +1,7 @@
 #include "gui.h"
 
 GUIElementMultilineText::GUIElementMultilineText(Texturer *texturer, Render *renderer) : GUIElementText(texturer, renderer) {
+	type = GUIElement::GUIElementType_MultilineText;
 	scrollHit = 0;
 }
 
@@ -67,5 +68,14 @@ byte GUIElementMultilineText::DoActionHold(const int &x, const int &y) {
 
 byte GUIElementMultilineText::DoActionStopHold(const int &x, const int &y) {
 	scrollHit = 0;
+	return 1;
+}
+
+byte GUIElementMultilineText::DoActionScroll(const float &x, const float &y) {
+	scroll += y;
+	if (scroll < 0)
+		scroll = 0;
+	else if (scroll > maxScroll)
+		scroll = maxScroll;
 	return 1;
 }

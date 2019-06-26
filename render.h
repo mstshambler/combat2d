@@ -90,6 +90,7 @@ public:
 	void DrawSprite(const float &x, const float &y, const float &width, const float &height, const float &tx, const float &ty, const float &t_width, const float &t_height, const float &angle) const;
 	void DrawBorder(const float &x, const float &y, const float &width, const float &height, const float &size, const float &r, const float &g, const float &b, const float &a) const;
 	void DrawRect(const float &x, const float &y, const float &width, const float &height, const float &r, const float &g, const float &b, const float &a) const;
+	void DrawCircle(const float &x, const float &y, const float &radius, const byte &filled, const float &r, const float &g, const float &b, const float &a) const;
 	void ConvertWindowToScreenCoords(const float &x, const float &y, float &sx, float &sy) const;
 
 	void ReadCoordsUnderCursor(const int &x, const int &y, float *ox, float *oy, float *oz);

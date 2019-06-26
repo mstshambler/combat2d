@@ -466,6 +466,30 @@ void Render::DrawRect(const float &x, const float &y, const float &width, const 
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
+void Render::DrawCircle(const float &x, const float &y, const float &radius, const byte &filled, const float &r, const float &g, const float &b, const float &a) const {
+	float cur;
+	float step;
+
+	glColor4f(r, g, b, a);
+	if (filled)
+		glBegin(GL_TRIANGLE_FAN);
+	else
+		glBegin(GL_LINE_LOOP);
+	glTexCoord2f(0.0f, 0.0f);
+	if (filled)
+		glVertex2f(x, y);
+
+	cur = 0.0f;
+	step = (float)M_PI * 2.0f / 360.0f;
+	while (cur < (float)M_PI * 2.0f) {
+		glVertex2f(x + cos(cur) * radius, y + sin(cur) * radius);
+		cur += step;
+	}
+
+	glEnd();
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+}
+
 void Render::ReadCoordsUnderCursor(const int &x, const int &y, float *ox, float *oy, float *oz) {
 	GLfloat wz;
 	GLint wy;

@@ -130,7 +130,11 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-//	printf("Scroll: %i %i\n", xoffset, yoffset);
+	GUIElement *clickElement = NULL;
+
+	clickElement = gui->FindElementByCoords(gui->GetRootElement(), global_mousepos[0], global_mousepos[1]);
+	if (clickElement)
+		clickElement->DoActionScroll((float)xoffset, (float)-yoffset*10.0f);
 }
 
 void size_callback(GLFWwindow* window, int x, int y) {
@@ -323,6 +327,8 @@ int main(void) {
 		GUIElementButton *btn1;
 		GUIElementMultilineText *mt1;
 		GUIElementEdit *ed1;
+		GUIElementCheckbox *cb1;
+		GUIElementRadio *rb1;
 
 		wnd1 = new GUIElementWindow(texturer, renderer, L"mainMenu", 0, 0, 50, 50, GUIElement::GUIElementMeasureType_PercentSizeX | GUIElement::GUIElementMeasureType_PercentSizeY,
 			GUIElement::GUIElementAlign_HorCenter | GUIElement::GUIElementAlign_VertCenter, 1, 0.8f, gui->GetRootElement());
@@ -330,8 +336,22 @@ int main(void) {
 		txt1 = new GUIElementText(texturer, renderer, L"mainMenuTitle", L"Main Menu", Render::FontSize_Huge, 0, 0, 0, 0, GUIElement::GUIElementMeasureType_ContentSizeX | GUIElement::GUIElementMeasureType_ContentSizeY,
 			GUIElement::GUIElementAlign_HorCenter, 1, (GUIElement *)wnd1);
 
-		ed1 = new GUIElementEdit(texturer, renderer, L"mainMenuEdit", L"", Render::FontSize_Medium, 10, 12, 50, 0,
+		txt1 = new GUIElementText(texturer, renderer, L"mainMenuEditLabel", L"Edit: ", Render::FontSize_Medium, 10, 12, 0, 0,
+			GUIElement::GUIElementMeasureType_PercentPosX | GUIElement::GUIElementMeasureType_PercentPosY | GUIElement::GUIElementMeasureType_ContentSizeX | GUIElement::GUIElementMeasureType_ContentSizeY,
+			0, 1, (GUIElement *)wnd1);
+		ed1 = new GUIElementEdit(texturer, renderer, L"mainMenuEdit", L"", Render::FontSize_Medium, 20, 12, 50, 0,
 			GUIElement::GUIElementMeasureType_PercentPosX | GUIElement::GUIElementMeasureType_PercentPosY | GUIElement::GUIElementMeasureType_PercentSizeX | GUIElement::GUIElementMeasureType_ContentSizeY,
+			0, 1, (GUIElement *)wnd1);
+
+		cb1 = new GUIElementCheckbox(texturer, renderer, L"mainMenuCheck", 0, L"Checkbox!", Render::FontSize_Medium, 10, 20, 0, 0,
+			GUIElement::GUIElementMeasureType_PercentPosX | GUIElement::GUIElementMeasureType_PercentPosY | GUIElement::GUIElementMeasureType_ContentSizeX | GUIElement::GUIElementMeasureType_ContentSizeY,
+			0, 1, (GUIElement *)wnd1);
+
+		rb1 = new GUIElementRadio(texturer, renderer, L"mainMenuRadioGroup1", L"mainMenuRadio1-1", 0, L"Radio1", Render::FontSize_Medium, 50, 20, 0, 0,
+			GUIElement::GUIElementMeasureType_PercentPosX | GUIElement::GUIElementMeasureType_PercentPosY | GUIElement::GUIElementMeasureType_ContentSizeX | GUIElement::GUIElementMeasureType_ContentSizeY,
+			0, 1, (GUIElement *)wnd1);
+		rb1 = new GUIElementRadio(texturer, renderer, L"mainMenuRadioGroup1", L"mainMenuRadio1-2", 0, L"Radio2", Render::FontSize_Medium, 50, 25, 0, 0,
+			GUIElement::GUIElementMeasureType_PercentPosX | GUIElement::GUIElementMeasureType_PercentPosY | GUIElement::GUIElementMeasureType_ContentSizeX | GUIElement::GUIElementMeasureType_ContentSizeY,
 			0, 1, (GUIElement *)wnd1);
 
 		mt1 = new GUIElementMultilineText(texturer, renderer, L"mainMenuMultilineText",
@@ -340,7 +360,7 @@ int main(void) {
 			Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\
 			Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\
 			Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-			, Render::FontSize_Small, 10, 20, 80, 60,
+			, Render::FontSize_Small, 10, 40, 80, 40,
 			GUIElement::GUIElementMeasureType_PercentPosX | GUIElement::GUIElementMeasureType_PercentPosY | GUIElement::GUIElementMeasureType_PercentSizeX | GUIElement::GUIElementMeasureType_PercentSizeY,
 			0, 1, (GUIElement *)wnd1);
 

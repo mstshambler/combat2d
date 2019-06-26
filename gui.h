@@ -60,6 +60,7 @@ public:
 		GUIElementType_MultilineText,
 		GUIElementType_Button,
 		GUIElementType_Checkbox,
+		GUIElementType_Radio,
 		GUIElementType_List,
 		GUIElementType_Combolist,
 		GUIElementType_Edit,
@@ -110,6 +111,7 @@ public:
 	virtual byte DoActionClick(const int &x, const int &y);
 	virtual byte DoActionKeyPress(const int &key, const int &scancode, const int &mod);
 	virtual byte DoActionCharPress(const unsigned int &keycode);
+	virtual byte DoActionScroll(const float &x, const float &y);
 	virtual byte DoActionLoseFocus();
 
 	virtual void UpdateSize();
@@ -182,6 +184,7 @@ public:
 
 	byte DoActionHold(const int &x, const int &y);
 	byte DoActionStopHold(const int &x, const int &y);
+	byte DoActionScroll(const float &x, const float &y);
 };
 
 class GUIElementButton : public GUIElementText {
@@ -215,6 +218,42 @@ public:
 	byte DoActionLoseFocus();
 
 	void ModifyScroll(const int &shift);
+};
+
+class GUIElementCheckbox : public GUIElementText {
+protected:
+	byte checked;
+
+public:
+	GUIElementCheckbox(Texturer *texturer, Render *renderer);
+	GUIElementCheckbox(Texturer *texturer, Render *renderer, const wstring &id, const byte &checked, const wstring &text, const int &textSize, const int &x, const int &y, const int &sizeX, const int &sizeY, const byte &measureType,
+		const byte &align, const byte &enabled, GUIElement *parent);
+	~GUIElementCheckbox();
+
+	void SetChecked(const byte &b);
+	byte GetChecked() const;
+
+	void RenderElement(const byte &active, const byte &hover) const;
+
+	byte DoActionClick(const int &x, const int &y);
+};
+
+class GUIElementRadio : public GUIElementCheckbox {
+protected:
+	wstring groupId;
+
+public:
+	GUIElementRadio(Texturer *texturer, Render *renderer);
+	GUIElementRadio(Texturer *texturer, Render *renderer, const wstring &groupId, const wstring &id, const byte &checked, const wstring &text, const int &textSize, const int &x, const int &y, const int &sizeX, const int &sizeY, const byte &measureType,
+		const byte &align, const byte &enabled, GUIElement *parent);
+	~GUIElementRadio();
+
+	void SetGroupId(const wstring &s);
+	wstring *GetGroupId() const;
+
+//	void RenderElement(const byte &active, const byte &hover) const;
+
+	byte DoActionClick(const int &x, const int &y);
 };
 
 class GUI {
