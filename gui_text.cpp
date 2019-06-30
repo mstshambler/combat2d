@@ -61,7 +61,6 @@ void GUIElementText::UpdateSize() {
 }
 
 void GUIElementText::RenderElement(const byte &active, const byte &hover) const {
-	//renderer->DrawString(texturer, (float)pixelPos.GetX(), (float)(renderer->GetScreenHeight() - pixelPos.GetY()), textSize, L"arial.ttf", text);
 	renderer->DrawStringBox(texturer, (float)pixelPos.GetX(), (float)(renderer->GetScreenHeight() - pixelPos.GetY()), (float)pixelSize.GetX(), (float)pixelSize.GetY(),
-		0, (float)pixelPos.GetX() - scroll, (float)(renderer->GetScreenHeight() - pixelPos.GetY()), textSize, L"arial.ttf", text);
+		0, (float)pixelPos.GetX() - scroll, (float)(renderer->GetScreenHeight() - pixelPos.GetY()), textSize, L"arial.ttf", text, Color(1.0f, 1.0f, 1.0f, 1.0f));
 }

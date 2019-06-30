@@ -23,17 +23,18 @@ void GUIElementMultilineText::RenderElement(const byte &active, const byte &hove
 	float sx = pixelSize.GetX() - 16.0f;
 
 	texturer->Bind(texturer->GetWhite());
-	renderer->DrawRect((float)pixelPos.GetX(), (float)(renderer->GetScreenHeight() - pixelPos.GetY()), (float)pixelSize.GetX(), (float)pixelSize.GetY(), 0.0f, 0.0f, 0.0f, 0.8f);
+	renderer->DrawRect((float)pixelPos.GetX(), (float)(renderer->GetScreenHeight() - pixelPos.GetY()), (float)pixelSize.GetX(), (float)pixelSize.GetY(), Color(0.0f, 0.0f, 0.0f, 0.8f));
+
 	if (maxScroll > 0.0f) {
 		float scrollPos = (float)(renderer->GetScreenHeight() - pixelPos.GetY());
 
 		scrollPos -= (float)pixelSize.GetY() / 2.0f * (scroll / maxScroll);
-		renderer->DrawRect((float)(pixelPos.GetX() + pixelSize.GetX()) - 16.0f, scrollPos, 16.0f, (float)pixelSize.GetY() / 2.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+		renderer->DrawRect((float)(pixelPos.GetX() + pixelSize.GetX()) - 16.0f, scrollPos, 16.0f, (float)pixelSize.GetY() / 2.0f, Color(1.0f, 1.0f, 1.0f, 1.0f));
 		sx -= 16.0f;
 	}
 
 	renderer->DrawStringBox(texturer, pixelPos.GetX() + 8.0f, renderer->GetScreenHeight() - pixelPos.GetY() - 8.0f, sx, pixelSize.GetY() - 16.0f,
-		1, pixelPos.GetX() + 8.0f, renderer->GetScreenHeight() - pixelPos.GetY() + scroll - 8.0f, textSize, L"arial.ttf", text);
+		1, pixelPos.GetX() + 8.0f, renderer->GetScreenHeight() - pixelPos.GetY() + scroll - 8.0f, textSize, L"arial.ttf", text, Color(1.0f, 1.0f, 1.0f, 1.0f));
 
 }
 

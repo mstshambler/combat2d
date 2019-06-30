@@ -37,16 +37,15 @@ void GUIElementCheckbox::RenderElement(const byte &active, const byte &hover) co
 		if (alpha > 1.0f)
 			alpha = 2.0f - alpha;
 	}
-
 	radius = pixelSize.GetY() / 2.0f - 8.0f;
-	renderer->DrawCircle(pixelPos.GetX() + radius + 4.0f, (float)(renderer->GetScreenHeight() - pixelPos.GetY() - pixelSize.GetY() / 2), radius, 0, 1.0f, 1.0f, 1.0f, alpha);
+	renderer->DrawCircle(pixelPos.GetX() + radius + 4.0f, (float)(renderer->GetScreenHeight() - pixelPos.GetY() - pixelSize.GetY() / 2), radius, 0, Color(1.0f, 1.0f, 1.0f, alpha));
 	if (checked)
-		renderer->DrawCircle(pixelPos.GetX() + radius + 4.0f, (float)(renderer->GetScreenHeight() - pixelPos.GetY() - pixelSize.GetY() / 2), radius - 3.0f, 1, 1.0f, 1.0f, 1.0f, alpha);
+		renderer->DrawCircle(pixelPos.GetX() + radius + 4.0f, (float)(renderer->GetScreenHeight() - pixelPos.GetY() - pixelSize.GetY() / 2), radius - 3.0f, 1, Color(1.0f, 1.0f, 1.0f, alpha));
 
 	// don't forget to change padding size in GUI:ResizeElements!
 	px = radius * 2.0f + 8.0f;
 	renderer->DrawStringBox(texturer, (float)pixelPos.GetX() + px, (float)(renderer->GetScreenHeight() - pixelPos.GetY()), (float)pixelSize.GetX() - px, (float)pixelSize.GetY(),
-		0, (float)pixelPos.GetX() + px, (float)(renderer->GetScreenHeight() - pixelPos.GetY()), textSize, L"arial.ttf", text);
+		0, (float)pixelPos.GetX() + px, (float)(renderer->GetScreenHeight() - pixelPos.GetY()), textSize, L"arial.ttf", text, Color(1.0f, 1.0f, 1.0f, 1.0f));
 }
 
 byte GUIElementCheckbox::DoActionClick(const int &x, const int &y) {

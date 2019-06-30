@@ -441,9 +441,9 @@ void Render::ConvertWindowToScreenCoords(const float &x, const float &y, float &
 	sy = screenHeight2D - 1.0f - y * screenHeight2D / screenHeight;
 }
 
-void Render::DrawBorder(const float &x, const float &y, const float &width, const float &height, const float &size, const float &r, const float &g, const float &b, const float &a) const {
+void Render::DrawBorder(const float &x, const float &y, const float &width, const float &height, const float &size, const Color &color) const {
 	glLineWidth(size);
-	glColor4f(r, g, b, a);
+	glColor4f(color.GetR(), color.GetG(), color.GetB(), color.GetAlpha());
 	glBegin(GL_LINE_LOOP);
 	glVertex2f(x, y);
 	glVertex2f(x + width, y);
@@ -454,8 +454,8 @@ void Render::DrawBorder(const float &x, const float &y, const float &width, cons
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-void Render::DrawRect(const float &x, const float &y, const float &width, const float &height, const float &r, const float &g, const float &b, const float &a) const {
-	glColor4f(r, g, b, a);
+void Render::DrawRect(const float &x, const float &y, const float &width, const float &height, const Color &color) const {
+	glColor4f(color.GetR(), color.GetG(), color.GetB(), color.GetAlpha());
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0f, 0.0f);
 	glVertex2f(x, y);
@@ -466,11 +466,11 @@ void Render::DrawRect(const float &x, const float &y, const float &width, const 
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-void Render::DrawCircle(const float &x, const float &y, const float &radius, const byte &filled, const float &r, const float &g, const float &b, const float &a) const {
+void Render::DrawCircle(const float &x, const float &y, const float &radius, const byte &filled, const Color &color) const {
 	float cur;
 	float step;
 
-	glColor4f(r, g, b, a);
+	glColor4f(color.GetR(), color.GetG(), color.GetB(), color.GetAlpha());
 	if (filled)
 		glBegin(GL_TRIANGLE_FAN);
 	else
@@ -567,8 +567,10 @@ RenderFont *Render::FindFont(const int &size, const wstring &fontName) const {
 	return font;
 }
 
-void Render::DrawString(Texturer *texturer, const float &x, const float &y, const int &size, const wstring &fontName, const wstring &text) const {
+void Render::DrawString(Texturer *texturer, const float &x, const float &y, const int &size, const wstring &fontName, const wstring &text, const Color &color) const {
 	RenderFont *font;
+
+	glColor4f(color.GetR(), color.GetG(), color.GetB(), color.GetAlpha());
 
 	font = FindFont(size, fontName);
 	if (font) {
@@ -605,11 +607,14 @@ void Render::DrawString(Texturer *texturer, const float &x, const float &y, cons
 			c++;
 		}
 	}
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 void Render::DrawStringBox(Texturer *texturer, const float &boxX, const float &boxY, const float &boxSizeX, const float &boxSizeY,
-	const byte &horizontalWrap, const float &x, const float &y, const int &size, const wstring &fontName, const wstring &text) const {
+	const byte &horizontalWrap, const float &x, const float &y, const int &size, const wstring &fontName, const wstring &text, const Color &color) const {
 	RenderFont *font;
+
+	glColor4f(color.GetR(), color.GetG(), color.GetB(), color.GetAlpha());
 
 	font = FindFont(size, fontName);
 	if (font) {
@@ -684,6 +689,7 @@ void Render::DrawStringBox(Texturer *texturer, const float &boxX, const float &b
 			c++;
 		}
 	}
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 float Render::GetStringLength(const int &size, const wstring &fontName, const wstring &text, const int &len) const {

@@ -30,7 +30,7 @@ void GUIElementEdit::RenderElement(const byte &active, const byte &hover) const 
 		float cursorPixelPos;
 		float alpha;
 
-		renderer->DrawRect((float)pixelPos.GetX(), (float)(renderer->GetScreenHeight() - pixelPos.GetY()), (float)pixelSize.GetX(), (float)pixelSize.GetY(), 0.0f, 0.0f, 0.0f, 0.8f);
+		renderer->DrawRect((float)pixelPos.GetX(), (float)(renderer->GetScreenHeight() - pixelPos.GetY()), (float)pixelSize.GetX(), (float)pixelSize.GetY(), Color(0.0f, 0.0f, 0.0f, 0.8f));
 
 		alpha = (renderer->GetTickTime()->tv_sec % 2) * 1000.0f + renderer->GetTickTime()->tv_usec / 1000.0f;
 		alpha = alpha / 1000.0f;
@@ -38,11 +38,12 @@ void GUIElementEdit::RenderElement(const byte &active, const byte &hover) const 
 			alpha = 2.0f - alpha;
 
 		cursorPixelPos = renderer->GetStringLength(textSize, L"arial.ttf", text, cursorPos);
-		renderer->DrawRect((float)pixelPos.GetX() + cursorPixelPos - scroll, (float)(renderer->GetScreenHeight() - pixelPos.GetY()), 2.0f, (float)pixelSize.GetY(), 1.0f, 1.0f, 1.0f, alpha);
+		renderer->DrawRect((float)pixelPos.GetX() + cursorPixelPos - scroll, (float)(renderer->GetScreenHeight() - pixelPos.GetY()), 2.0f, (float)pixelSize.GetY(), Color(1.0f, 1.0f, 1.0f, alpha));
 	} else if (hover)
-		renderer->DrawRect((float)pixelPos.GetX(), (float)(renderer->GetScreenHeight() - pixelPos.GetY()), (float)pixelSize.GetX(), (float)pixelSize.GetY(), 0.0f, 0.0f, 0.0f, 0.8f);
+		renderer->DrawRect((float)pixelPos.GetX(), (float)(renderer->GetScreenHeight() - pixelPos.GetY()), (float)pixelSize.GetX(), (float)pixelSize.GetY(), Color(0.0f, 0.0f, 0.0f, 0.8f));
+
 	renderer->DrawStringBox(texturer, (float)pixelPos.GetX(), (float)(renderer->GetScreenHeight() - pixelPos.GetY()), (float)pixelSize.GetX(), (float)pixelSize.GetY(),
-		0, (float)pixelPos.GetX() - scroll, (float)(renderer->GetScreenHeight() - pixelPos.GetY()), textSize, L"arial.ttf", text);
+		0, (float)pixelPos.GetX() - scroll, (float)(renderer->GetScreenHeight() - pixelPos.GetY()), textSize, L"arial.ttf", text, Color(1.0f, 1.0f, 1.0f, 1.0f));
 }
 
 byte GUIElementEdit::DoActionClick(const int &x, const int &y) {

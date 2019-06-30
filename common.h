@@ -76,4 +76,50 @@ class PointUInt : public Point<uint> {
 class PointFloat : public Point<int> {
 };
 
+class Color {
+protected:
+	float r, g, b, a;
+
+public:
+	Color() {
+		r = g = b = a = 1.0f;
+	}
+
+	Color(const float &r, const float &g, const float &b, const float &alpha) {
+		this->r = r;
+		this->g = g;
+		this->b = b;
+		this->a = alpha;
+	}
+
+	~Color() {}
+
+	void SetR(const float &f) { r = f; }
+	void SetG(const float &f) { g = f; }
+	void SetB(const float &f) { b = f; }
+	void SetAlpha(const float &f) { a = f; }
+	float GetR() const { return r; }
+	float GetG() const { return g; }
+	float GetB() const { return b; }
+	float GetAlpha() const { return a; }
+
+	void Set(const float &r, const float &g, const float &b, const float &alpha) {
+		this->r = r;
+		this->g = g;
+		this->b = b;
+		this->a = alpha;
+	}
+
+	void Get(float *r, float *g, float *b, float *alpha) const {
+		if (r)
+			*r = this->r;
+		if (g)
+			*g = this->g;
+		if (b)
+			*b = this->b;
+		if (alpha)
+			*alpha = this->a;
+	}
+};
+
 #endif

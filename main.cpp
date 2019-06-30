@@ -403,7 +403,7 @@ int main(void) {
 		glDisable(GL_DEPTH_TEST);
 
 		texturer->Bind(texturer->GetWhite());
-		renderer->DrawRect(0.0f, (float)renderer->GetScreenHeight(), (float)renderer->GetScreenWidth(), (float)renderer->GetScreenHeight(), 1.0f, 1.0f, 0.0f, 1.0f);
+		renderer->DrawRect(0.0f, (float)renderer->GetScreenHeight(), (float)renderer->GetScreenWidth(), (float)renderer->GetScreenHeight(), Color(1.0f, 1.0f, 0.0f, 1.0f));
 		// TODO: combine functions into one?
 		gui->SetHoverElement(gui->FindElementByCoords(gui->GetRootElement(), global_mousepos[0], global_mousepos[1]));
 		gui->RenderElements(gui->GetRootElement(), global_mousepos[0], global_mousepos[1]);

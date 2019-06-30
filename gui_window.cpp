@@ -22,5 +22,5 @@ float GUIElementWindow::GetAlpha() const {
 
 void GUIElementWindow::RenderElement(const byte &active, const byte &hover) const {
 	texturer->Bind(texturer->GetWhite());
-	renderer->DrawRect((float)pixelPos.GetX(), (float)(renderer->GetScreenHeight() - pixelPos.GetY()), (float)pixelSize.GetX(), (float)pixelSize.GetY(), 0.0f, 0.0f, 0.0f, alpha);
+	renderer->DrawRect((float)pixelPos.GetX(), (float)(renderer->GetScreenHeight() - pixelPos.GetY()), (float)pixelSize.GetX(), (float)pixelSize.GetY(), Color(0.0f, 0.0f, 0.0f, alpha));
 }
