@@ -5,6 +5,7 @@ GUIElementText::GUIElementText(Texturer *texturer, Render *renderer) : GUIElemen
 	textSize = Render::FontSize_Small;
 	scroll = 0.0f;
 	maxScroll = 0.0f;
+	type = GUIElement::GUIElementType_Text;
 }
 
 GUIElementText::GUIElementText(Texturer *texturer, Render *renderer, const wstring &id, const wstring &text, const int &textSize, const int &x, const int &y, const int &sizeX, const int &sizeY, const byte &measureType,

@@ -39,6 +39,12 @@ GUIElement::GUIElement(Texturer *texturer, Render *renderer,
 }
 
 GUIElement::~GUIElement() {
+	list<GUIElement *>::iterator ei;
+
+	for (ei = childs->begin(); ei != childs->end(); ei++) {
+		delete *ei;
+	}
+
 	delete childs;
 }
 

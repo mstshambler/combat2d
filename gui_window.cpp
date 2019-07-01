@@ -1,6 +1,7 @@
 #include "gui.h"
 
 GUIElementWindow::GUIElementWindow(Texturer *texturer, Render *renderer) : GUIElement(texturer, renderer) {
+	type = GUIElement::GUIElementType_Window;
 	alpha = 0.0f;
 }
 

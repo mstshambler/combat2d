@@ -66,6 +66,8 @@ public:
 		GUIElementType_Edit,
 		GUIElementType_Table,
 		GUIElementType_TableRow,
+		GUIElementType_TableItemText,
+		GUIElementType_TableItemImage,
 		GUIElementType_Window,
 		GUIElementType_Last
 	};
@@ -166,8 +168,6 @@ public:
 
 class GUIElementMultilineText : public GUIElementText {
 protected:
-	float scroll;
-	float maxScroll;
 	byte scrollHit;
 
 public:
@@ -254,6 +254,62 @@ public:
 //	void RenderElement(const byte &active, const byte &hover) const;
 
 	byte DoActionClick(const int &x, const int &y);
+};
+
+class GUIElementTableItemText : public GUIElementText {
+public:
+	GUIElementTableItemText(Texturer *texturer, Render *renderer);
+	GUIElementTableItemText(Texturer *texturer, Render *renderer, const wstring &id, const wstring &text, const int &textSize, const int &sizeX, const byte &measureType,
+		const byte &align, const byte &enabled, GUIElement *parent);
+	~GUIElementTableItemText();
+};
+
+class GUIElementTableItemImage : public GUIElementTableItemText {
+protected:
+	GLuint tex;
+	PointFloat texCoords;
+	PointFloat texSize;
+
+public:
+	GUIElementTableItemImage(Texturer *texturer, Render *renderer);
+	GUIElementTableItemImage(Texturer *texturer, Render *renderer, const wstring &id, const GLuint &tex, const float &tx, const float &ty, const float &tsx, const float &tsy,
+		const int &sizeX, const byte &measureType, const byte &align, const byte &enabled, GUIElement *parent);
+	~GUIElementTableItemImage();
+
+	void SetTex(const GLuint &t);
+	GLuint GetTex() const;
+
+	PointFloat *TexCoords();
+	PointFloat *TexSize();
+};
+
+class GUIElementTableRow : public GUIElement {
+public:
+	GUIElementTableRow(Texturer *texturer, Render *renderer);
+	GUIElementTableRow(Texturer *texturer, Render *renderer, const wstring &id);
+	~GUIElementTableRow();
+};
+
+class GUIElementTable : public GUIElementMultilineText {
+protected:
+	list<GUIElementTableRow *> *rows;
+	GUIElementTableRow *header;
+
+public:
+	GUIElementTable(Texturer *texturer, Render *renderer);
+	GUIElementTable(Texturer *texturer, Render *renderer, const wstring &id, const int &x, const int &y, const int &sizeX, const int &sizeY, const byte &measureType,
+		const byte &align, const byte &enabled, GUIElement *parent);
+	~GUIElementTable();
+	
+	void RenderElement(const byte &active, const byte &hover) const;
+
+	void UpdateSize();
+
+	void AddRow(GUIElementTableRow *row);
+	void DeleteRow(GUIElementTableRow *row);
+	list<GUIElementTableRow *> *GetRows();
+
+	GUIElementTableRow *GetHeader();
 };
 
 class GUI {
